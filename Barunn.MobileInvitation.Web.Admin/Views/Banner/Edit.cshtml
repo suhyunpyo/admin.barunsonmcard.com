@@ -1,0 +1,388 @@
+﻿@model BannerViewModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    ul.tabs { /*margin: 0;*/
+        margin-left: 15px;
+        padding: 0;
+        float: left;
+        list-style: none;
+        height: 45px;
+        /* border-bottom: 1px solid #eee;*/
+        /* border-left: 1px solid #eee;*/
+        width: 100%;
+        font-family: "dotum";
+        font-size: 16px;
+        vertical-align: bottom;
+    }
+
+        ul.tabs li {
+            float: left;
+            text-align: center;
+            cursor: pointer;
+            width: 150px;
+            height: 50px;
+            line-height: 31px;
+            border: 1px solid #eee;
+            border-left: none;
+            color: #656565;
+            font-size: 0.9em; /*font-weight: bold;*/
+            font-weight: 600;
+            background: #FFFFFF;
+            overflow: hidden;
+            position: relative;
+            vertical-align: bottom;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            border-left: 1px solid #eee;
+            border-bottom: 0px solid #FFFFFF;
+            padding-top: 5px;
+        }
+            ul.tabs li.active {
+                background: #f8f9fc;
+                border-bottom: 0px solid #FFFFFF;
+                border-left: 1px solid #eee
+            }
+
+        .tab_container {
+            margin-top: -25px;
+            margin-left: 0px; /*border: 1px solid #eee;*/
+            border-top: none;
+            clear: both;
+            float: left;
+            width: 170%;
+            /*  width: 100%;*/
+            background: #FFFFFF;
+        }
+    .tab_content {
+        padding: 14px;
+        /*    padding: 5px;*/
+        /*font-size: 12px;*/
+        display: none;
+    }
+    .bg-disable {
+        border-radius: 0.35rem;
+        background-color: #eaecf4 !important;
+    }
+</style>
+<form asp-action="Save" asp-controller="Banner" method="post">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">배너등록/수정</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">구분</td>
+                                <td>
+                                    <input type="checkbox" asp-for="Banner_PC_YN" /><label class="ml-1">PC</label>
+                                    <input type="checkbox" asp-for="Banner_Mobile_YN" class="ml-2" /><label class="ml-1">Moblie</label>
+                                    <span asp-validation-for="Banner_PC_YN" class="text-danger"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>배너분류</td>
+                                <td>
+                                    <select asp-for="Banner_Category_ID" asp-items="Model.Banner_Categories" disabled="@(Model.Banner_ID > 0)"
+                                            class="form-control form-control-sm" style="width: 30%;"></select>
+                                    <span asp-validation-for="Banner_Category_ID" class="text-danger"></span>
+                                    <input type="hidden" asp-for="Banner_Category_ID" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>제목</td>
+                                <td>
+                                    <input type="text" asp-for="Banner_Name" class="form-control form-control-sm" placeholder="제목을 입력하세요">
+                                    <span asp-validation-for="Banner_Name" class="text-danger"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" style="padding-left:5px;">
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+            <div id="container" style="padding-top:20px;">
+                <ul class="tabs">
+                    @foreach (var typeCode in Model.Banner_Type_Codes)
+                    {
+                    <li rel="@typeCode.Value">
+                        @typeCode.Text
+                    </li>
+                    }
+                </ul>
+                <div class="tab_container" >
+                    @foreach (var typeCode in Model.Banner_Type_Codes)
+                    {
+                        var items = Model.BannerItems.Where(m => m.Banner_Type_Code == typeCode.Value).OrderBy(m => m.Sort);
+                        var maxCount = items.Count();
+                        var idx = 0;
+
+                        <div id="@typeCode.Value" class="tab_content" style="display: block;">
+                            <table class="table table-bordered" cellspacing="0" style="text-align: center; width:1155px;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:4%">순서</th>
+                                        <th style="width:4%">상태</th>
+                                        <th style="width:7%">순서변경</th>
+                                        <th style="width:15%">이미지 등록</th>
+                                        <th style="width:1%">TEXT</th>
+                                        <th style="width:1%">링크 URL</th>
+                                        <th style="width:13.9%">기간</th>
+                                        <th style="width:4%">새창</th>
+                                        <th style="width:5%">클릭수</th>
+                                        <th style="width:5%">삭제/추가</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in items)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="hidden" name="BannerItems.index" value="@item.itemId" />
+                                                <input type="hidden" name="BannerItems[@item.itemId].itemId" asp-for="@item.itemId" />
+                                                <input type="hidden" name="BannerItems[@item.itemId].Banner_Item_ID" asp-for="@item.Banner_Item_ID" />
+                                                <input type="hidden" name="BannerItems[@item.itemId].Sort" asp-for="@item.Sort" />
+                                                <input type="hidden" name="BannerItems[@item.itemId].Banner_Type_Code" asp-for="@item.Banner_Type_Code" />
+                                                <span>@item.Sort</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.Status</span>
+                                                <input type="hidden" name="BannerItems[@item.itemId].Status" asp-for="@item.Status" />
+                                            </td>
+                                            <td>
+                                                @if (idx < maxCount - 1 )
+                                                {
+                                                    <button type="submit" asp-action="Save" asp-route-handler="DownItem" asp-route-itemId="@item.itemId"
+                                                            class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                                                        <i class="fas fa-angle-down"></i>
+                                                    </button>
+                                                }
+                                                @if (idx > 0)
+                                                {
+                                                    <button type="submit" asp-action="Save" asp-route-handler="UpItem" asp-route-itemId="@item.itemId"
+                                                            class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                                                        <i class="fas fa-angle-up"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div style="width:100%;">
+                                                    <button type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm uploadImage" 
+                                                            data-itemid="@item.itemId" data-itemnum="1"
+                                                            style="float:left">
+                                                        등록
+                                                    </button>
+                                                    <input type="text" name="BannerItems[@item.itemId].Image_URL" asp-for="@item.Image_URL" placeholder="이미지 등록" class="form-control form-control-sm"
+                                                           style="float:left;width:65%;margin-left:10px;" readonly="readonly" />
+                                                    <br />
+                                                    <br />
+                                                    <img src="@item.Image_AbsoluteURL" name="BannerItems[@item.itemId].Image" style="width:100%; height: 58px" filname="" />
+                                                    <input type="hidden" name="BannerItems[@item.itemId].Image_AbsoluteURL" asp-for="@item.Image_AbsoluteURL" />
+                                                </div>
+                                                <div style="width:100%; margin-top:10px;">
+                                                    <button type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm uploadImage"
+                                                            data-itemid="@item.itemId" data-itemnum="2"
+                                                            style="float:left">
+                                                        등록
+                                                    </button>
+                                                    <input type="text" name="BannerItems[@item.itemId].Image_URL2" asp-for="@item.Image_URL2" placeholder="이미지 등록" class="form-control form-control-sm"
+                                                           style="float:left;width:65%;margin-left:10px;" readonly="readonly" />
+                                                    <br />
+                                                    <br />
+                                                    <img src="@item.Image_AbsoluteURL2" name="BannerItems[@item.itemId].Image2"  style="width:100%; height: 58px" filname="" />
+                                                    <input type="hidden" name="BannerItems[@item.itemId].Image_AbsoluteURL2" asp-for="@item.Image_AbsoluteURL2" />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width:100%;">
+                                                    <textarea name="BannerItems[@item.itemId].Banner_Main_Description" placeholder="메인 텍스트"
+                                                              data-autoresize="true" rows="3" style="border-radius:0; overflow:visible;" >@item.Banner_Main_Description</textarea>
+                                                </div>
+                                                <div style="width:100%; margin-top:10px;">
+                                                    <textarea name="BannerItems[@item.itemId].Banner_Add_Description" placeholder="서브 텍스트"
+                                                              data-autoresize="true" rows="3" style="border-radius:0; overflow:visible;" >@item.Banner_Add_Description</textarea>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="BannerItems[@item.itemId].Link_URL" asp-for="@item.Link_URL" placeholder="http://" />
+                                            </td>
+                                            <td style="text-align: left">
+                                                <div class="input-daterange" style="display:inline;">
+                                                    <div class="mb-4">
+                                                        <input type="text" name="BannerItems[@item.itemId].Start_Date" value="@item.Start_Date?.ToString("yyyy-MM-dd")" class="form-control bg-light border-0 small" style="width:62%; display:inline;">
+                                                        <select name="BannerItems[@item.itemId].Start_Time" asp-for="@item.Start_Time" asp-items="Model.DeadlineTimes" style="width: 35%;display: inline" class="form-control form-control-sm"></select>
+                                                    </div>
+                                                    <div>
+                                                        <input type="text" name="BannerItems[@item.itemId].End_Date" value="@item.End_Date?.ToString("yyyy-MM-dd")" class="form-control bg-light border-0 small" style="width:62%; display:inline;">
+                                                        <select name="BannerItems[@item.itemId].End_Time" asp-for="@item.End_Time" asp-items="Model.DeadlineTimes" style="width: 35%;display: inline" class="form-control form-control-sm"></select>
+                                                    </div>
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span style="float:left; margin-left: 45px;">
+                                                        <input type="checkbox" name="BannerItems[@item.itemId].Deadline_Type_Code" asp-for="@item.Deadline_Type_Code" class="chk_deadline" />&nbsp;무제한
+                                                    </span>
+                                                    <br />
+                                                    <span class="text-danger">@item.Deadline_Type_ValidMessage</span>
+                                                </div>
+                                                
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" name="BannerItems[@item.itemId].NewPage_YN" asp-for="@item.NewPage_YN" />
+                                            </td>
+                                            <td>
+                                                <span>@item.Click_Count</span>
+                                                <input type="hidden" name="BannerItems[@item.itemId].Click_Count" asp-for="@item.Click_Count" />
+                                            </td>
+                                            <td>
+                                                @if (idx > 0)
+                                                {
+                                                    <button type="submit" asp-action="Save" asp-route-handler="RemoveItem" asp-route-itemId="@item.itemId"
+                                                            class="btn btn-sm removeItem">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+
+                                                }
+                                                <button type="submit" asp-action="Save" asp-route-handler="AddItem" asp-route-itemId="@item.itemId" asp-route-handlerValue="@typeCode.Value"
+                                                        class="btn btn-sm">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        idx++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+                <!-- .tab_container -->
+                <div class="text-center">
+                    <button type="submit" asp-action="Save" asp-route-handler="Save"  class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                        저장
+                    </button>
+                    <a asp-action="Index" asp-controller="Banner" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">취소</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" asp-for="Banner_ID" />
+    <input type="hidden" asp-for="ReturnUrl" />
+    <input type="hidden" asp-for="Selected_Banner_Type_Codes" class="selectedTab" />
+</form>
+<div style="display:none;">
+    <form asp-action="UploadImage" id="frmFileUpload" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="itemId" />
+        <input type="hidden" name="itemnum" />
+        <input type="file" id="file" name="file">
+    </form>
+</div>
+
+@section Scripts
+{
+<script>
+    $(document).ready(function () {
+
+        $(".tab_content").hide();
+        $("#" + $(".selectedTab").val()).show();
+        $("ul.tabs li[rel=" + $(".selectedTab").val() + "]").addClass("active");
+
+        $("ul.tabs li").on("click", function () {
+            $("ul.tabs li").removeClass("active");
+            $(this).addClass("active");
+            $(".tab_content").hide()
+            var activeTab = $(this).attr("rel");
+            $("#" + activeTab).fadeIn();
+            $(".selectedTab").val(activeTab);
+        });
+
+        $(".chk_deadline").on("click", function (e) {
+            if ($(this).is(":checked")) { //무제한 체크
+                $(this).closest("td").find("input:text[name*='.Start_Date'], input:text[name*='.End_Date']").datepicker("remove").toggleClass("bg-light").addClass("bg-disable");
+                $(this).closest("td").find("select[name*='.Start_Time'], select[name*='.End_Time']").attr("disabled", true);
+
+            } else {
+                $(this).closest("td").find("input:text[name*='.Start_Date'], input:text[name*='.End_Date']").datepicker({
+                    showOn: "both", 
+                    todayBtn: "linked",
+                    autoclose: true,
+                    language: "ko",
+                    format: "yyyy-mm-dd"
+                });
+
+                $(this).closest("td").find("input:text[name*='.Start_Date'], input:text[name*='.End_Date']").toggleClass("bg-disable").addClass("bg-light");
+                $(this).closest("td").find("select[name*='.Start_Time'], select[name*='.End_Time']").attr("disabled", false);
+            }
+        });
+        // 등록된 배너들중에서 무제한 기간으로 설정되어 있으면 시작완료날짜 비활성화
+        $(".chk_deadline").each(function (i) {
+            if ($(this).is(":checked")) { //무제한 체크
+                $(this).closest("td").find("input:text[name*='.Start_Date'], input:text[name*='.End_Date']").datepicker("remove").toggleClass("bg-light").addClass("bg-disable");
+                $(this).closest("td").find("select[name*='.Start_Time'], select[name*='.End_Time']").attr("disabled", true);
+
+            } else {
+                $(this).closest("td").find("input:text[name*='.Start_Date'], input:text[name*='.End_Date']").datepicker({
+                    showOn: "both",
+                    todayBtn: "linked",
+                    autoclose: true,
+                    language: "ko",
+                    format: "yyyy-mm-dd"
+                });
+
+                $(this).closest("td").find("input:text[name*='.Start_Date'], input:text[name*='.End_Date']").toggleClass("bg-disable").addClass("bg-light");
+                $(this).closest("td").find("select[name*='.Start_Time'], select[name*='.End_Time']").attr("disabled", false);
+            }
+        });
+
+        //메인 이미지 등록/변경
+        $(".uploadImage").on('click', function (e) {
+            e.preventDefault();
+
+            $("#frmFileUpload")[0].reset();
+            $("#frmFileUpload input[name=itemId]").val($(this).attr("data-itemid"));
+            $("#frmFileUpload input[name=itemnum]").val($(this).attr("data-itemnum"));
+            $("#frmFileUpload #file").click();
+        });
+
+        //파일 업로드 실행
+        $("#frmFileUpload #file").on("change", function (e) {
+            $(".loader").show();
+
+            var form = $("#frmFileUpload");
+            var formData = new FormData(form[0]);
+            $.ajax({
+                url: form.attr('action'),
+                data: formData,
+                type: form.attr('method'),
+                enctype: form.attr('enctype'),
+                processData: false,
+                contentType: false
+            }).done(function (result) {
+                if (result.status) {
+                    var itemid = result.itemId
+                    if (result.itemnum == "1") {
+                        $('input[type=text][name="BannerItems[' + itemid + '].Image_URL"]').val(result.path);
+                        $('img[name="BannerItems[' + itemid + '].Image"]').attr('src', result.absoluteUri);
+                        $('input[type=hidden][name="BannerItems[' + itemid + '].Image_AbsoluteURL"]').val(result.absoluteUri);
+                    } else if (result.itemnum == "2") {
+                        $('input[type=text][name="BannerItems[' + itemid + '].Image_URL2"]').val(result.path);
+                        $('img[name="BannerItems[' + itemid + '].Image2"]').attr('src', result.absoluteUri);
+                        $('input[type=hidden][name="BannerItems[' + itemid + '].Image_AbsoluteURL2"]').val(result.absoluteUri);
+                    }
+                } else {
+                    alert(result.message);
+                }
+                $(".loader").hide();
+            });
+        });
+    });
+</script>
+}

@@ -1,0 +1,133 @@
+﻿@using  Barunn.MobileInvitation.Web.Admin.Services;
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - 바른컴퍼니 모바일 초대장</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Custom styles for this template-->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"><!--Noto Sans-->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet"><!--나눔 고딕-->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet"><!--나눔 고딕 코딩-->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet"><!--나눔 명조-->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet"> <!--나눔 펜 스크립트-->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap" rel="stylesheet"> <!--나눔 브러쉬 스크립트-->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"> <!--Cinzel-->
+    @*나눔바른펜*@
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-pen.css" rel="stylesheet">
+    @*나눔바른고딕*@
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+    @*나눔스퀘어라운드*@
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square-round.css" rel="stylesheet">
+    @*나눔스퀘어라이트*@
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
+
+
+    <link href="~/lib/bootstrap-colorpicker/css/bootstrap-colorpicker.css" rel="stylesheet" />
+
+    <link href="~/lib/bootstrap4-duallistbox/bootstrap-duallistbox.css" rel="stylesheet" />
+    <link href="~/lib/jquery-ui/jquery-ui.css" rel="stylesheet" />
+    <link href="~/lib/jquery-contextmenu/jquery.contextMenu.css" rel="stylesheet" />
+    <link href="~/lib/cropperjs/cropper.css" rel="stylesheet" />
+
+    <link href="~/css/datepicker3.css" rel="stylesheet" />
+    <link href="~/css/loader.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/css/extra_font.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/css/slider.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/css/sb-admin-2.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/css/etc.css" asp-append-version="true" rel="stylesheet" />
+
+
+    <style type="text/css">
+        .adviceUl {
+            margin-left: -40px;
+            font-size: 0.9rem;
+        }
+
+        .adviceLi {
+            margin-left: 25px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body id="page-top">
+    <partial name="_TopMenuPartial" />
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Sidebar -->
+        <partial name="_LeftMenuPartial" />
+        <!-- End of Sidebar -->
+        <!-- Main Content -->
+        <div id="content">
+            @RenderBody()
+        </div>
+        <!-- End of Main Content -->
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white" style="display:none;">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; barunsonmcard 2021</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+    </div>
+    <!-- End of Content Wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">로그아웃 하시겠습니까?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+                    <a class="btn btn-primary" href="@Url.Action("Logout", "Member")">확인</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+    <script src="~/lib/jquery-contextmenu/jquery.contextMenu.js"></script>
+    <script src="~/lib/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+    <script src="~/lib/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.js"></script>
+
+    <script src="~/lib/chart/Chart.min.js"></script>
+    <script src="~/lib/cropperjs/cropper.js"></script>
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script src="~/js/plugins/bootstrap-datepicker.js"></script>
+    <script src="~/js/plugins/bootstrap-datepicker.ko.min.js"></script>
+    <script src="~/js/admin_common_helper.js" asp-append-version="true"></script>
+    <script src="~/js/checkboxs_helper.js" asp-append-version="true"></script>
+    <script src="~/js/sb-admin-2.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

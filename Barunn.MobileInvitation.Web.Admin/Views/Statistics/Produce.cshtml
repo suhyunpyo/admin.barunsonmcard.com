@@ -1,0 +1,178 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model StatisticsProduceViewModel<StatisticsOrderProduce>
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar {
+        width: 253px !important;
+    }
+
+    #content {
+        width: 100% !important;
+    }
+</style>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">제작통계</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form id="frmSearch" method="get" asp-action="Produce">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">기간</td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="year" id="year" title="년" tabindex="0" style="width:10%; display: inline;"
+                                            asp-for="SelectedYear" asp-items="Model.Years">
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit">검색</button>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm btn-init" type="button">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+<style>
+    .table thead th{
+        vertical-align:middle;
+    }
+</style>
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="ProduceExcel" asp-route-year="@Model.SelectedYear"
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 통계 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th rowspan="2" style="vertical-align:middle;">일자</th>
+                            <th rowspan="2" style="vertical-align:middle;">종이첩첩장<br />제작</th>
+                            <th colspan="3" style="border-bottom:none;">모바일 청첩장 제작</th>
+                            <th colspan="4" style="border-bottom:none;">계좌설정 </th>
+                            <th rowspan="2">카카오페이<br />거래액</th>
+                            <th colspan="3" style="border-bottom:none;">화환설정 </th>
+                        </tr>
+                        <tr class="tdCenter">
+                            <th>청첩장제작<br />(O)</th>
+                            <th>청첩장제작<br />(X)</th>
+                            <th>계</th>
+                            <th>카카오페이<br />설정</th>
+                            <th>카카오페이<br />취소</th>
+                            <th>일반송금<br />설정</th>
+                            <th>일반송금<br />취소</th>
+                            <th>선물 설정</th>
+                            <th>선물 취소</th>
+                            <th>거래액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sd in Model.Items)
+                        {
+                        <tr>
+                            <td class="tdCenter">@(sd.Date)</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.CustomOrderCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.MCardWithPaperCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.MCardWithoutPaperCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.MCardTotalCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.KaKaoPayConfCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.KaKaoPayCancelCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.RemitConfCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.RemitCancelCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.AccountTotalAmount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.FlowerConfCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.FlowerCancelCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", sd.FlowerTotalAmount))</td>
+                        </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="tdCenter" style="font-weight:bold;">합계</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.CustomOrderCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.MCardWithPaperCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.MCardWithoutPaperCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.MCardTotalCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.KaKaoPayConfCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.KaKaoPayCancelCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.RemitConfCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.RemitCancelCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.AccountTotalAmount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.FlowerConfCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.FlowerCancelCount))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.FlowerTotalAmount))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;실시간 데이터를 반영 및 표시합니다. </li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;용어정의</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종이 청첩장 제작 : 종이 청첩장 제작 건수이며, 배송 완료일 기준입니다. (원 주문만 해당, 추가주문 해당 없음)</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;모바일 청첩장 제작 : 모바일 청첩장 제작 건수이며, 제작 완료일 기준입니다. (1명이 여러 개를 만들 경우, 모두 카운트에 포함)</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;청첩장제작(ㅇ) : 종이 청첩장을 제작하고, 모바일 청첩장을 만든 건수</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;청첩장제작( × ) : 종이 청첩장을 제작하지 않고, 모바일 청첩장을 만든 건수</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;계좌 설정 : 모바일 청첩장에 계좌 설정한 건수입니다.</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;카카오페이 설정 : 카카오페이 “사용함”설정 카운트 (계좌 설정 건수가 아님, 고객이 3개 설정해도 1개로 카운트)</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;카카오페이 취소 : 카카오페이 설정 후 “사용안함” 으로 변경 카운트</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;일반송금 설정 : 일반송금 “사용함” 설정 카운트 (계좌 설정 건수가 아님, 고객이 3개 설정해도 1개로 카운트)</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;일반송금 취소 : 일반송금 설정 후 “사용안함”으로 변경 카운트</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;화환 설정 : 모바일 청첩장에서 예비부부가 화환을 받을 수 있도록 설정한 건수입니다.</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;선물 설정 : 화환 선물 "사용함" 카운트</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;선물 취소 : 화환 선물 "사용함" 설정 후 "사용안함"으로 변경 카운트</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · &nbsp;&nbsp;거래액 : 하객이 화환을 결제한 금액</li>
+                </ul>
+            </div>
+        </div>
+</div>
+@section Scripts
+{
+    <script>
+    $().ready(function () {
+        $('.btn-init').click(function (e) {
+            $('#year').val('');
+            $('#frmSearch').submit();
+        });
+    });
+
+    </script>
+}

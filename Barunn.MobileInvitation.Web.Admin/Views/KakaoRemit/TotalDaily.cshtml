@@ -1,0 +1,147 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model StatisticsViewModel<TB_Remit_Statistics_Daily>
+@{
+    Layout = "_Layout";
+}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">매출현황 / 일별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form id="frmSearch" method="get" asp-action="TotalDaily">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">기간</td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="year" id="year" title="년" tabindex="0" style="width:10%; display: inline;"
+                                            asp-for="SelectedYear" asp-items="Model.Years">
+                                    </select>
+                                    <select class="form-control form-control-sm" name="month" id="month" title="월" tabindex="1" style="width:10%; display: inline;"
+                                            asp-for="SelectedMonth" asp-items="Model.Months">
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit">검색</button>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm btn-init" type="button">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="TotalDailyExcel" asp-route-year="@Model.SelectedYear" asp-route-month="@Model.SelectedMonth"
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>일자</th>
+                            <th>거래액</th>
+                            <th>매출액</th>
+                            <th>송금 수수료</th>
+                            <th>정산 수수료</th>
+                            <th>계좌 조회 수수료</th>
+                            <th>순매출</th>
+                            <th>이용자수</th>
+                            <th>계좌수</th>
+                            <th>송금건수</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sd in Model.Items)
+                        {
+                            DateTime dt = DateTime.ParseExact(sd.Date, "yyyyMMdd", null);
+                            string strDt = dt.ToString("yyyy-MM-dd (ddd)");
+                            <tr>
+                                <td class="chart-lable tdCenter" data-chartlabel="@(dt.ToString("dd"))" @(strDt.Contains("토") || strDt.Contains("일") ? "style=color:red;" : "")>@(strDt)</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Remit_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Remit_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Calculate_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Hits_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Tax - sd.Hits_Tax - sd.Remit_Tax - sd.Calculate_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.User_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Account_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Remit_Count))</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                    @if (Model.Total != null)
+                    {
+                        <tfoot>
+                            <tr>
+                                <td class="tdCenter">합계</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Remit_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Remit_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Calculate_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Hits_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Tax - Model.Total.Hits_Tax - Model.Total.Remit_Tax - Model.Total.Calculate_Tax))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.User_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Account_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Remit_Count))</td>
+                            </tr>
+                        </tfoot>
+                    }
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1. 전일 기준 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2. 용어정의</li>
+                    <li class="adviceLi">- 거래액 : 축의금 송금서비스 전체 거래 금액입니다.</li>
+                    <li class="adviceLi">- 매출액 : 하객이 바른컴퍼니에 지불하는 축의금 송금서비스 이용 수수료 입니다.</li>
+                    <li class="adviceLi">- 송금 수수료 : 바른컴퍼니가 더즌(카카오페이 간편송금)에 지불하는 서비스 이용 수수료입니다.</li>
+                    <li class="adviceLi">- 정산 수수료 : 바른컴퍼니가 더즌에 지불하는 정산 대행 서비스 이용 수수료입니다.</li>
+                    <li class="adviceLi">- 계좌 조회 수수료 : 바른컴퍼니가 더즌(은행 계좌조회)에 지불하는 서비스 이용 수수료입니다.</li>
+                    <li class="adviceLi">- 순매출 : 매출액 - 송금 수수료 - 정산 수수료 - 계좌 조회 수수료 = 순매출</li>
+                    <li class="adviceLi">- 이용자수 : 송금서비스를 이용하는 회원(예비부부)수입니다. (합계는 중복제거)</li>
+                    <li class="adviceLi">- 계좌수 : 1명이 축의금을 계좌를 설정한 개수입니다. (예. A가 축의금 계좌를 3개 셋팅 시 3으로 카운트)</li>
+                    <li class="adviceLi">- 송금건수 : 하객들이 송금한 건수입니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3. 순매출 금액은 실제 정산과 다를 수 있습니다.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script>
+        $().ready(function () {
+            $('.btn-init').click(function (e) {
+                $('#year').val('');
+                $('#month').val('');
+                $('#frmSearch').submit();
+            });
+        });
+       
+    </script>
+}

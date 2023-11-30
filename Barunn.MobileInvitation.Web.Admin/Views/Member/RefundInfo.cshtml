@@ -1,0 +1,165 @@
+﻿@model RefundInfoViewModel
+@{
+    Layout = null;
+
+    // 브라우저 내부 모달 팝업으로 출력됨.
+}
+<div class="modal-dialog" role="document" style="max-width: 580px">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">환불등록</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form asp-action="RefundSave" asp-controller="Member" method="post" id="Refund">
+                <input type="hidden" asp-for="Order_ID" />
+                <input type="hidden" asp-for="Trading_Number" />
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>내용</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>주문번호</td>
+                            <td>
+                                @Model.Order_Code
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>환불방법</td>
+                            <td>
+                                <select class="form-control form-control-sm"
+                                        asp-for="Refund_Type_Code" asp-items="Model.RefundTyeCodes" disabled="@(!Model.IsSave)">
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>환불상태</td>
+                            <td>
+                                <select class="form-control form-control-sm" disabled="@(!Model.IsSave)"
+                                        asp-for="Refund_Status_Code" asp-items="Model.RefundStatusCodes">
+                                </select>
+                            </td>
+                        </tr>
+                        @if (Model.IsBankInput)
+                        {
+                            <tr>
+                                <td>입금은행</td>
+                                <td>
+                                    <select class="form-control form-control-sm" disabled="@(!Model.IsSave)"
+                                            asp-for="Bank_Type_Code" asp-items="Model.BankCodes">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>계좌번호</td>
+                                <td><input type="text" asp-for="AccountNumber" disabled="@(!Model.IsSave)" class="form-control form-control-sm" placeholder="계좌번호를 입력하세요"></td>
+                            </tr>
+                            <tr>
+                                <td>예금주</td>
+                                <td><input type="text" asp-for="Depositor_Name" disabled="@(!Model.IsSave)" class="form-control form-control-sm" placeholder="입금 받을 사람을 입력하세요"></td>
+                            </tr>
+                            <tr>
+                                <td>환불상태</td>
+                                <td>
+                                    <select class="form-control form-control-sm"  disabled="@(!Model.IsSave)"
+                                            asp-for="Refund_Status_Code" asp-items="Model.RefundStatusCodes">
+                                    </select>
+                                </td>
+                            </tr>
+
+                        }
+                        <tr>
+                            <td>환불금액</td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" disabled value="@Model.Payment_Price?.ToString("#,##0")">
+                                <input type="hidden" asp-for="Refund_Price" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>환불사유</td>
+                            <td><input type="text" asp-for="Refund_Content" disabled="@(!Model.IsSave)" class="form-control form-control-sm" placeholder="환불사유를 입력하세요"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+            <div class="mt-5 info_bt">
+                <h5>도움말</h5>
+                <hr>
+                <ul style="margin-left: -20px;">
+                    <li style="width:100%">1. 카드결제취소, 계좌이체취소는 어드민에서 취소 시 PG연동되어 자동 처리됩니다.</li>
+                    <li>2. 가상계좌취소는 어드민에서 취소 후, 고객통장으로 직접 입금 처리 하셔야 합니다.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer" style="text-align:center; display: block;">
+            <a class="btn btn-primary" name="Save" href="#none">저장</a>
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">닫기</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $("[name=Save]").click(function (e) {
+        e.preventDefault();
+
+        var Refund_Type_Code = $("[name=Refund_Type_Code] option:selected").val();
+
+        //가상계좌 취소
+        if (Refund_Type_Code == "RTC03") {
+            if ($("[name=Bank_Type_Code]").val() == "") {
+                alert("입금은행을 입력하세요.");
+                $("[name=Bank_Type_Code]").focus();
+                return;
+            }
+            if ($("[name=AccountNumber]").val() == "") {
+                alert("계좌번호를 입력하세요.");
+                $("[name=AccountNumber]").focus();
+                return;
+            }
+            if ($("[name=Depositor_Name]").val() == "") {
+                alert("예금주를 입력하세요.");
+                $("[name=Depositor_Name]").focus();
+                return;
+            }
+        }
+
+        if (isEmpty($("#Refund_Status_Code").val())) {
+            alert("환불상태를 선택하세요.");
+            return;
+        }
+
+        var result = confirm('환불을 진행하시겠습니까?.');
+        if (result) {
+            var form = $("#Refund");
+            var url = form.attr('action');
+            
+            $.ajax({
+                cache: false,
+                url: url,
+                type: 'POST',
+                data: form.serialize(),
+                success: function (data) {
+                    
+                    if (data.status == true) {
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                }, 
+
+                error: function (xhr, status) {
+                    alert(xhr + " : " + status);
+                }
+            }); 
+        }
+    });
+
+</script>

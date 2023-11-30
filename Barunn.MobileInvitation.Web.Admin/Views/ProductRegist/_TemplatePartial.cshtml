@@ -1,0 +1,960 @@
+﻿@model ProductRegistViewModel
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@{
+    Layout = null;
+}
+<style>
+    .tmp-container {
+        padding: 0;
+    }
+
+    .tmp-row {
+        margin: 0;
+    }
+
+    .tmp-card-header {
+        border-radius: calc(0.35rem - 1px) calc(0.35rem - 1px) 0 0;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 0;
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    .tmp-card-body {
+        padding: 1.25rem;
+    }
+
+    .tmp-text-primary {
+        color: #4e73df !important;
+    }
+
+    .w-30 {
+        width: 30%;
+    }
+</style>
+<div id="wrapper" style="flex-direction: column ">
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Main Content -->
+        @*<div id="content1">*@
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid tmp-container">
+            <!-- Content Row -->
+            <div class="row tmp-row">
+                <!-- 툴 영역 -->
+                <div class="dvTool">
+                    <div class="card" style="min-height:765px; max-height:765px; overflow-y:scroll;">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>도구</span></h6>
+                        </div>
+                        <div class="card-body col-lg-12 tmp-card-body">
+                            <div class="row">
+                                <div id="divDisabled1"></div>
+                                <div class="col-lg-6" style="border-right:1px dotted #ddd;">
+                                    <h6 class="collapse-header text-left ml-2" style="font-size: 0.9rem; font-weight:bold; padding:0 0 10px 0; color:#333;">폰트</h6>
+                                    <select id="selFont" name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm">
+                                    </select>
+                                    <div class="btn-set mt-2" style="padding: 10px 0 0 0;">
+                                        <div>
+                                            <a id="Bold" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/bold.png"></a>
+                                            <a id="Italic" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/italic.png"></a>
+                                            <a id="Underline" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/underline.png"></a>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <a id="Left" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/left.png"></a>
+                                            <a id="Center" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/center.png"></a>
+                                            <a id="Right" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/right.png"></a>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <a id="Top" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/top.png"></a>
+                                            <a id="Middle" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/middle.png"></a>
+                                            <a id="Bottom" href="#" class="d-none d-sm-inline-block t-btn-sm t-btn"><img src="~/img/bottom.png"></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h6 class="collapse-header text-left ml-2" style="font-size: 0.9rem; font-weight:bold; padding:0 0 10px 0; color:#333;">텍스트 크기</h6>
+                                    <div class="row inline-group">
+                                        <div class="col-lg-3">
+                                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-minus">
+                                                <i class="fa fa-minus"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-6" style="padding:0px;">
+                                            <input id="FontSize" class="form-control quantity form-control-sm" min="0" name="quantity" value="16" type="number" style="width:100%;" />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-plus">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <h6 class="collapse-header text-left ml-2" style="font-size: 0.9rem; font-weight:bold; padding:10px 0 0 0; color:#333;">글자 간격</h6>
+                                    <div class="row">
+                                        <div class="col-lg-9 ">
+                                            <input id="Between_Text_Calc" type="range" value="-5" min="-50" max="200" step="1">
+                                        </div>
+                                        <div class="col-lg-3 text-left " style="padding:0px">
+                                            <input id="Between_Text" for="Between_Text_Calc" class="form-control quantity form-control-sm" min="0" name="quantity" value="-5" type="number" style="text-align:right;">
+                                        </div>
+                                    </div>
+                                    <h6 class="collapse-header text-left ml-2" style="font-size: 0.9rem; font-weight:bold; padding:10px 0 0 0; color:#333;">줄 간격</h6>
+                                    <div class="row">
+                                        <div class="col-lg-9 ">
+                                            <input id="Between_Line_Calc" type="range" value="1.2" min="0.5" max="2.5" step="0.1">
+                                        </div>
+                                        <div class="col-lg-3 text-left" style="padding:0px">
+                                            <input id="Between_Line" for="Between_Line_Calc" class="form-control quantity form-control-sm" min="0" name="quantity" value="1.2" type="number" style="text-align:right;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="divDisabled2"></div><div id="divDisabled3"></div>
+                                <div class="col-lg-12 mt-3 mb-3" style="border-top:1px dotted #ddd;">
+                                    <div class="row mt-3">
+                                        <div class="col-lg-6 text-center" style="padding:0px;">
+                                            <div class="col-lg-5 text-center" style="float:left;font-size:0.9rem; height:100%; padding-top:7px;">글자색</div>
+                                            <div class="col-lg-7 text-center btn-group btn-group-sm">
+                                                <input id="object_txtcolor" type="text" class="form-control form-control-sm colorPicker " style="text-transform:uppercase; font-size:14px;" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 text-center" style="padding:0px;">
+                                            <div class="col-lg-5 text-center" style="float:left;font-size:0.9rem; height:100%; padding-top:7px;">배경색</div>
+                                            <div class="col-lg-7 text-center btn-group btn-group-sm">
+                                                <input id="object_bgcolor" type="text" class="form-control form-control-sm colorPicker " style="text-transform:uppercase; font-size:14px;" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="divDisabled4"></div>
+                                <div class="col-lg-12">
+                                    <div class="row" style="border-top:1px dotted #ddd;">
+                                        <div class="col-lg-6 text-center txt-img mt-3 mb-3 ">
+                                            <a href="javascript:template.bring_front();" id="Bring_Front" class="d-none d-sm-inline-block btn  btn-sm">맨 앞으로 가져오기</a>
+                                        </div>
+                                        <div class="col-lg-6 text-center txt-img mt-3 mb-3 ">
+                                            <a href="javascript:template.bring_forward();" id="Bring_Forward" class="d-none d-sm-inline-block btn  btn-sm">앞으로 가져오기</a>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="border-top:1px dotted #ddd;">
+                                        <div class="col-lg-6 text-center txt-img  mt-3 mb-3 ">
+                                            <a href="javascript:template.send_back();" id="Send_Back" class="d-none d-sm-inline-block btn btn-sm">맨 뒤로 보내기</a>
+                                        </div>
+                                        <div class="col-lg-6 text-center txt-img  mt-3 mb-3 ">
+                                            <a href="javascript:template.send_backward();" id="Send_Backward" class="d-none d-sm-inline-block btn btn-sm">뒤로 보내기</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12  txt-img" style="border-top:1px dotted #ddd; ">
+                                    <div class="row">
+                                        <div class="col-lg-6 text-center mt-2 mb-2">
+                                            <a href="#" id="Delete" class="d-none d-sm-inline-block btn btn-sm " style="width:100%"><i class="fas fa-times table-primary-red mr-1"></i>삭제</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="divDisabled5"></div>
+                                <div class="col-lg-12 " style="border-top:1px dotted #ddd; height:84px;">
+                                    <div class="row mt-3">
+                                        <div class="col-lg-6">
+                                            <select id="selMatchInfo" name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm">
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="divMatch" class="tag-body mt-2">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12 mt-3" style="border-top:1px dotted #ddd; ">
+                                    <div class="row mt-4" id="preTemplateList" style="display:none;">
+                                        <ul class="padding-inline-start ml-2 w25">
+                                            <li><img src="~/img/108x108_1.gif" /></li>
+                                            <li><img src="~/img/108x108_1.gif" /></li>
+                                            <li><img src="~/img/108x108_1.gif" /></li>
+                                            <li><img src="~/img/108x108_1.gif" /></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 뷰 영역 -->
+                <div class="dvView">
+
+                    <!-- Background Gradient Utilities -->
+                    <div class="card" style="min-height:765px; max-height:765px; overflow-y:scroll;">
+                        <div id="design_header" class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary">
+                                디자인영역
+                            </h6>
+                            <span><input type="checkbox" id="chk_effect" checked />&nbsp;효과 보기</span>
+                        </div>
+                        <div class="guideline" style="display:none;"></div>
+                        <div class="card-body tmp-card-body">
+                            <div id="wrap" class="skin">
+                                <!-- 표지 디자인 (메인 디자인) -->
+                                <div id="area1" idx="1" class="templatearea resizable">
+                                    <p class="placeholder">표지 디자인 (메인 디자인)</p>
+                                </div>
+                                <!-- 초대글 (인사말) -->
+                                <div id="area2" idx="2" class="templatearea resizable"><p class="placeholder">초대글 (인사말)</p></div>
+                                <!-- 신랑,신부 연락처 타이틀 이미지 -->
+                                <div id="area3" idx="3" class="templatearea resizable"><p class="placeholder">신랑,신부 연락처 타이틀 이미지</p></div>
+                                <!-- 신랑 신부 연락정보 -->
+                                <div id="area4" idx="4" class="call line">
+                                    <h2 class="sound">신랑 신부 연락정보</h2>
+                                    <div class="grid_box">
+                                        <dl class="husband">
+                                            <dt>
+                                                <span class="blue">신랑에게 연락하기</span>
+                                            </dt>
+                                            <dd><a href="tel:@Model.TemplateModel.TemplateDetail.Groom_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_call.svg" width="32" alt="전화 아이콘" /></a></dd>
+                                            <dd><a href="sms:@Model.TemplateModel.TemplateDetail.Groom_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_sms.svg" width="36" alt="SMS 아이콘" /></a></dd>
+                                        </dl>
+                                        <dl class="wife">
+                                            <dt>
+                                                <span class="blue">신부에게 연락하기</span>
+                                            </dt>
+                                            <dd><a href="tel:@Model.TemplateModel.TemplateDetail.Bride_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_call.svg" width="32" alt="전화 아이콘" /></a></dd>
+                                            <dd><a href="sms:@Model.TemplateModel.TemplateDetail.Bride_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_sms.svg" width="36" alt="SMS 아이콘" /></a></dd>
+                                        </dl>
+                                    </div>
+
+                                    <div class="list_wrap">
+                                        <a href="javascript:;" class="info_detail">정보 더보기</a>
+                                        <ul class="grid_box">
+                                            <li>
+                                                <h3>신랑측 혼주</h3>
+                                                <div class="list_con">
+                                                    <p>
+                                                        <span class="i_Groom_Parents1_Title">아버지</span>
+                                                        <span class="i_Groom_Parents1_Name">@Model.TemplateModel.TemplateDetail.Groom_Parents1_Name</span>
+                                                    </p>
+                                                    <div class="btn_wrap">
+                                                        <a href="tel:@Model.TemplateModel.TemplateDetail.Groom_Parents1_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_call.svg" width="25" alt="전화 아이콘"></a>
+                                                        <a href="sms:@Model.TemplateModel.TemplateDetail.Groom_Parents1_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_sms.svg" width="29" alt="SMS 아이콘"></a>
+                                                    </div>
+                                                </div>
+                                                <div class="list_con">
+                                                    <p>
+                                                        <span class="i_Groom_Parents2_Title">어머니</span>
+                                                        <span class="i_Groom_Parents2_Name">@Model.TemplateModel.TemplateDetail.Groom_Parents2_Name</span>
+                                                    </p>
+                                                    <div class="btn_wrap">
+                                                        <a href="tel:@Model.TemplateModel.TemplateDetail.Groom_Parents2_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_call.svg" width="25" alt="전화 아이콘"></a>
+                                                        <a href="sms:@Model.TemplateModel.TemplateDetail.Groom_Parents2_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_sms.svg" width="29" alt="SMS 아이콘"></a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <h3>신부측 혼주</h3>
+                                                <div class="list_con">
+                                                    <p>
+                                                        <span class="i_Bride_Parents1_Title">아버지</span>
+                                                        <span class="i_Bride_Parents1_Name">@Model.TemplateModel.TemplateDetail.Bride_Parents1_Name</span>
+                                                    </p>
+                                                    <div class="btn_wrap">
+                                                        <a href="tel:@Model.TemplateModel.TemplateDetail.Bride_Parents1_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_call.svg" width="25" alt="전화 아이콘"></a>
+                                                        <a href="sms:@Model.TemplateModel.TemplateDetail.Bride_Parents1_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_sms.svg" width="29" alt="SMS 아이콘"></a>
+                                                    </div>
+                                                </div>
+                                                <div class="list_con">
+                                                    <p>
+                                                        <span class="i_Bride_Parents2_Title">어머니</span>
+                                                        <span class="i_Bride_Parents2_Name">@Model.TemplateModel.TemplateDetail.Bride_Parents2_Name</span>
+                                                    </p>
+                                                    <div class="btn_wrap">
+                                                        <a href="tel:@Model.TemplateModel.TemplateDetail.Bride_Parents2_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_call.svg" width="25" alt="전화 아이콘"></a>
+                                                        <a href="sms:@Model.TemplateModel.TemplateDetail.Bride_Parents2_Phone"><img src="https://static.barunsoncard.com/barunsonmcard/invitation/icon/ico_24_sms.svg" width="29" alt="SMS 아이콘"></a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- 아빠 엄마 연락처 -->
+                                <div id="area21" idx="21" class="call line">
+                                    <h2 class="sound">연락정보</h2>
+                                    <dl class="husband">
+                                        <dt>
+                                            <span class="blue">아빠에게 연락하기</span>
+                                        </dt>
+                                        <dd><a href="tel:@Model.TemplateModel.TemplateDetail.Groom_Phone"><img src="~/img/skin/call_icon.png" width="32" alt="전화 아이콘" /></a></dd>
+                                        <dd><a href="sms:@Model.TemplateModel.TemplateDetail.Groom_Phone"><img src="~/img/skin/sms_icon.png" width="36" alt="SMS 아이콘" /></a></dd>
+                                    </dl>
+                                    <dl class="wife">
+                                        <dt>
+                                            <span class="blue">엄마에게 연락하기</span>
+                                        </dt>
+                                        <dd><a href="tel:@Model.TemplateModel.TemplateDetail.Bride_Phone"><img src="~/img/skin/call_icon.png" width="32" alt="전화 아이콘" /></a></dd>
+                                        <dd><a href="sms:@Model.TemplateModel.TemplateDetail.Bride_Phone"><img src="~/img/skin/sms_icon.png" width="36" alt="SMS 아이콘" /></a></dd>
+                                    </dl>
+                                </div>
+
+                                <!-- 아기정보 타이틀 이미지 -->
+                                <div id="area17" idx="17" class="templatearea resizable"><p class="placeholder">아기정보 타이틀 이미지</p></div>
+
+                                <!-- 아기 정보 프로필 디자인 -->
+                                <div id="area18" idx="18" class="templatearea resizable"><p class="placeholder">아기 정보 프로필 디자인</p></div>
+
+                                <!-- 아기 정보 본문 디자인 -->
+                                <div id="area19" idx="19" class="templatearea resizable">
+                                    <p class="placeholder">아기 정보 본문 디자인</p>
+
+                                </div>
+
+                                <!-- 아기 정보 하단 이미지 -->
+                                <div id="area20" idx="20" class="templatearea resizable"><p class="placeholder">아기 정보 하단 이미지</p></div>
+
+                                <!-- 갤러리 타이틀 이미지 -->
+                                <div id="area5" idx="5" class="templatearea resizable"><p class="placeholder">갤러리 타이틀 이미지</p></div>
+                                <!-- 갤러리 -->
+                                <div id="area6" idx="6">
+                                    <section class="gallery line" id="gallery">
+                                        <div class="area">
+                                            <!-- 갤러리 타입01 -->
+                                            <div class="gallery_type01 PCC01 PCC02">
+                                                <div class="skin_gallery">
+                                                    <figure><img src="~/img/Skin/img_photo01.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo02.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo03.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo04.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo05.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo06.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo07.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo08.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo09.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo10.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo11.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                    <figure><img src="~/img/Skin/img_photo12.jpg" class="img_frame" itemprop="thumbnail" alt=""></figure>
+                                                </div>
+                                            </div>
+                                            <div class="gallery_type01 PCC03">
+                                                <div class="skin_gallery">
+                                                    <img src="~/img/skin/gallery_PCC03.png" class="img_frame" itemprop="thumbnail" alt="">
+
+                                                </div>
+                                            </div>
+                                            <!-- //갤러리 타입01 -->
+                                        </div>
+                                    </section>
+                                </div>
+                                <!-- 동영상 타이틀 이미지 -->
+                                <div id="area7" idx="7" class="templatearea resizable"><p class="placeholder">동영상 타이틀 이미지</p></div>
+                                <!-- 동영상 -->
+                                <div id="area8" idx="8" class="movie line">
+                                    <div class="area">
+                                        <div class="iframe_wrap">
+                                            <iframe style="display:block; width:100% !important; height:100% !important; z-index:1 !important;" src='https://www.youtube.com/embed/rBFv_OBjA8Q?rel=0' frameborder='0' allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 오시는길 타이틀 이미지 -->
+                                <div id="area9" idx="9" class="templatearea resizable"><p class="placeholder">오시는길 타이틀 이미지</p></div>
+                                <!-- 오시는 길 -->
+                                <div id="area10" idx="10" class="location line">
+                                    <div class="area">
+                                        <div class="map_info">
+                                            <dl class="map_title">
+                                                <dt><span class="i_Weddinghall_Name">@Model.TemplateModel.TemplateDetail.Weddinghall_Name</span> <span class="i_WeddingHallDetail">@Model.TemplateModel.TemplateDetail.WeddingHallDetail</span></dt>
+                                                <dd><span class="i_Weddinghall_Address">@Model.TemplateModel.TemplateDetail.Weddinghall_Address</span></dd>
+                                                <dd><span class="i_Weddinghall_PhoneNumber">@Model.TemplateModel.TemplateDetail.Weddinghall_PhoneNumber</span></dd>
+                                            </dl>
+                                        </div>
+                                        <div class="location_button_box">
+                                            <a href="javascript:;" class="map_btn" target="_blank">지도</a>
+                                            <a href="tel:@Model.TemplateModel.TemplateDetail.Weddinghall_PhoneNumber" class="call_btn">전화</a>
+                                        </div>
+
+                                        <div class="map_wrap">
+                                            <iframe id="incNaverMap" src="@Url.Action("index","NaverMap")" width="750" height="320" frameborder="0" style="border: 0" allowfullscreen></iframe>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <!-- 기타정보 -->
+                                <div id="area11" idx="11" class="templatearea resizable"><p class="placeholder">기타정보</p></div>
+                                <!-- 축의금 송금 타이틀 이미지 -->
+                                <div id="area12" idx="12" class="templatearea resizable"><p class="placeholder">축의금 송금 타이틀 이미지</p></div>
+                                <!-- 축의금 송금 -->
+                                <div id="area13" idx="13" class="remittance line">
+                                    <div class="btn_wrap">
+                                        <a href="javascript:;" class="btn remittance_btn type03"><i class="ico kakaopay"></i> 축의금 송금하기</a>
+                                        <a href="javascript:;" class="btn an_btn type03">계좌번호 보기</a>
+                                    </div>
+                                </div>
+                                <!-- 방명록 타이틀 이미지 -->
+                                <div id="area14" idx="14" class="templatearea resizable" style="background-color:#F7F8F9;" color_val="#F7F8F9"><p class="placeholder">방명록 타이틀 이미지</p></div>
+                                <!-- 방명록 -->
+                                <div id="area15" idx="15" class="guest_book line">
+                                    <div class="area">
+                                        <div class="write_box">
+                                            <input type="text" placeholder="이름" maxlength="20">
+                                            <input type="password" placeholder="비밀번호" maxlength="20">
+                                            <input type="text" placeholder="축하메시지" maxlength="200">
+                                        </div>
+                                        <div class="btn_wrap">
+                                            <button type="button" class="btn btn_save_guestbook guest_btn">축하메시지 남기기</button>
+                                        </div>
+                                      
+                                        @* <div class="btn_wrap">
+                                            <a href="javascript:;" class="btn_type_02 guest_btn">축하메시지 남기기</a>
+                                        </div> *@
+                                        <!-- 방명록 글 리스트 -->
+                                        <div class="message_wrap PCC01 PCC02">
+                                            <ul>
+                                                <li>
+                                                    <div class="message_top">
+                                                        <span class="name">최수진</span>
+                                                        <div class="message_box">
+                                                            <span class="date">2023-10-11 10:39:34</span>
+                                                            <button type="button" class="message_del">방명록 삭제하기</button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="message_text">
+                                                        <p>결혼 축하해~~ 행복하게 잘 살아^^</p>
+                                                    </div>
+                                                    <div class="password_check">
+                                                        <input type="password" placeholder="Password">
+                                                        <a href="javascript:;" class="btn_type_02 check_btn">확인</a>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <div class="btn_wrap">
+                                                <a href="javascript:;" class="btn btn_guestbook_more">더보기</a>
+                                                <a href="javascript:;" class="btn btn_guestbook_all">전체보기</a>
+                                            </div>
+                                        </div>
+                                        <div class="message_wrap PCC03">
+                                            <ul>
+                                                <li>
+                                                    <div class="message_top">
+                                                        <span class="name">최수진</span>
+                                                        <span class="date">2021-05-29 10:53</span>
+                                                    </div>
+                                                    <div class="message_text">
+                                                        <p>생일 축하해^^</p>
+                                                        <a href="javascript:;" class="message_del">방명록 삭제하기</a>
+                                                    </div>
+                                                    <div class="password_check">
+                                                        <input type="password" placeholder="Password">
+                                                        <a href="javascript:;" class="btn_type_02 check_btn">확인</a>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="message_top">
+                                                        <span class="name">최수진</span>
+                                                        <span class="date">2021-05-29 10:53</span>
+                                                    </div>
+                                                    <div class="message_text">
+                                                        <p>건강해~~~~</p>
+                                                        <a href="javascript:;" class="message_del">방명록 삭제하기</a>
+                                                    </div>
+                                                    <div class="password_check">
+                                                        <input type="password" placeholder="Password">
+                                                        <a href="javascript:;" class="btn_type_02 check_btn">확인</a>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <div class="btn_wrap">
+                                                <a href="javascript:;" class="btn_type_02">더보기</a>
+                                                <a href="javascript:;" class="btn_type_02">전체보기</a>
+                                            </div>
+                                        </div>
+                                        <!-- //방명록 글 리스트 -->
+                                    </div>
+                                </div>
+                                <!-- //방명록 -->
+                                <!-- footer -->
+                                <div id="area16" idx="16" class="footer line">
+                                    <ul class="sns_list">
+                                        <li><img src="~/img/skin/facebook_icon.png" width="12" alt="페이스북"></li>
+                                        <li><img src="~/img/skin/kakao_icon.png" width="40" alt="카카오톡"></li>
+                                        <li><img src="~/img/skin/linkcopy_icon.png" width="30" alt="링크복사"></li>
+                                    </ul>
+                                </div>
+                                <footer class="footer line">
+                                    <div class="dvfooter">
+                                        <img src="https://static.barunsoncard.com/barunsonmcard/invitation/preview/barunson.png" alt="바른손카드 로고" />
+                                    </div>
+                                </footer>
+                                <!-- //footer -->
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ 템플릿 노출 영역-->
+                </div>
+
+                <!-- 정보 입력영역-->
+                <div class="dvInfo" style="min-height:765px; max-height:765px; overflow-y:scroll;">
+                    <!-- 기본정보 입력 -->
+                    <div class="card mb-2 PCC01 PCC02 PCC03">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>기본 정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample1">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">URL</td>
+                                        <td><input id="Preview_URL" readonly type="text" class="form-control control-sm" asp-for="TemplateModel.Template.Preview_URL"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">초대장제목</td>
+                                        <td>
+                                            <textarea class="form-control form-control-sm" rows="2" id="Template_Name" match="초대장제목" asp-for="TemplateModel.Template_Name"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">배경색</td>
+                                        <td>
+                                            <input id="template_bgcolor" autocomplete="off" type="text" class="form-control colorPicker " style="text-transform:uppercase" asp-for="TemplateModel.Template.Background_Color">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30 ">효과 CSS</td>
+                                        <td class="tdAttached">
+                                            <a id="btncssupload" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm empty">추가</a>
+                                            <input type="hidden" asp-for="TemplateModel.Template.Attached_File1_URL" />
+                                            <input type="hidden" asp-for="TemplateModel.Attached_File1_absoluteUri" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30 ">효과 JS</td>
+                                        <td class="tdAttached">
+                                            <a id="btnjsupload" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm empty">추가</a>
+                                            <input type="hidden" asp-for="TemplateModel.Template.Attached_File2_URL" />
+                                            <input type="hidden" asp-for="TemplateModel.Attached_File2_absoluteUri" />
+                                        </td>
+                                    </tr>
+                                    <tr class="tdphoto">
+                                        <td class="table-td-background w-30">포토이미지</td>
+                                        <td>
+                                            <a id="btnphotoupload" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm empty">추가</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">인사말</td>
+                                        <td>
+                                            <textarea class="form-control form-control-sm" rows="10" id="Greetings" match="인사말" asp-for="TemplateModel.TemplateDetail.Greetings"></textarea>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 신랑정보 입력 -->
+                    <div class="card mb-2 PCC01 PCC02">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>신랑정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample2">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">이름</td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" id="Groom_Name" match="신랑명" asp-for="TemplateModel.TemplateDetail.Groom_Name">
+                                            <span asp-validation-for="TemplateModel.TemplateDetail.Groom_Name" class="text-danger"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" class="form-control form-control-sm" id="Groom_Phone" match="신랑전화번호" asp-for="TemplateModel.TemplateDetail.Groom_Phone"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 신부정보 입력 -->
+                    <div class="card mb-2 PCC01 PCC02">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>신부정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample3">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">이름</td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" id="Bride_Name" match="신부명" asp-for="TemplateModel.TemplateDetail.Bride_Name">
+                                            <span asp-validation-for="TemplateModel.TemplateDetail.Bride_Name" class="text-danger"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" class="form-control form-control-sm" id="Bride_Phone" match="신부전화번호" asp-for="TemplateModel.TemplateDetail.Bride_Phone"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 신랑측 혼주정보 -->
+                    <div class="card mb-2 shadow PCC01 PCC02">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>신랑측 혼주정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample4">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">아버지 이름</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm input_match" id="Groom_Parents1_Name" match="신랑아버님" asp-for="TemplateModel.TemplateDetail.Groom_Parents1_Name"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm" id="Groom_Parents1_Phone" match="신랑아버님전화" asp-for="TemplateModel.TemplateDetail.Groom_Parents1_Phone"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">어머니 이름</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm input_match" id="Groom_Parents2_Name" match="신랑어머님" asp-for="TemplateModel.TemplateDetail.Groom_Parents2_Name"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm" id="Groom_Parents2_Phone" match="신랑어머님전화" asp-for="TemplateModel.TemplateDetail.Groom_Parents2_Phone"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 신부측 혼주정보 -->
+                    <div class="card mb-2 PCC01 PCC02">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>신부측 혼주정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample5">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">아버지 이름</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm input_match" id="Bride_Parents1_Name" match="신부아버님" asp-for="TemplateModel.TemplateDetail.Bride_Parents1_Name"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm" id="Bride_Parents1_Phone" match="신부아버님전화" asp-for="TemplateModel.TemplateDetail.Bride_Parents1_Phone"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">어머니 이름</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm input_match" id="Bride_Parents2_Name" match="신부어머님" asp-for="TemplateModel.TemplateDetail.Bride_Parents2_Name"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm" id="Bride_Parents2_Phone" match="신부어머님전화" asp-for="TemplateModel.TemplateDetail.Bride_Parents2_Phone"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 아기 정보 -->
+                    <div class="card mb-2 PCC03">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>아기정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample2">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">이름</td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" id="Baby_Name" match="아기이름" asp-for="TemplateModel.TemplateDetail.Baby_Name">
+                                            <span asp-validation-for="TemplateModel.TemplateDetail.Baby_Name" class="text-danger"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">탄생일</td>
+                                        <td>
+                                            <div class="input-daterange data" style="display:inline;">
+                                                <input type="text" id="Baby_Birthday" asp-for="TemplateModel.TemplateDetail.Baby_Birthday" class="form-control bg-light border-0 small"
+                                                       value="@Model.TemplateModel.TemplateDetail.Baby_Birthday?.ToString("yyyy-MM-dd")" match="탄생일자" style="width:40%; display:inline;" readonly="readonly" />
+                                                <i class="far fa-calendar-alt"></i>
+                                            </div>
+                                            <input type="hidden" value="@(Model.TemplateModel.TemplateDetail.Baby_Birthday?.ToString("yyyy"))" match="탄생년" />
+                                            <input type="hidden" value="@(Model.TemplateModel.TemplateDetail.Baby_Birthday?.ToString("MM"))" match="탄생월" />
+                                            <input type="hidden" value="@(Model.TemplateModel.TemplateDetail.Baby_Birthday?.ToString("dd"))" match="탄생일" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">프로필이미지</td>
+                                        <td>
+                                            <a id="btnprofileupload" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm empty">추가</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">정보</td>
+                                        <td>
+                                            @{
+                                                var babyProperies = Model.TemplateModel.TemplateRepeats.FirstOrDefault(m => m.Key == "Baby_Info_List");
+                                                if (!babyProperies.Equals(default(KeyValuePair<string, Dictionary<string, string>>)))
+                                                {
+                                                    <table>
+                                                        @{
+                                                            int i = 0;
+                                                            foreach (var item in babyProperies.Value)
+                                                            {
+                                                                <tr>
+                                                                    <td><input type="text" class="form-control form-control-sm" match="아기정보키" name="@("TemplateModel.TemplateRepeats[" + babyProperies.Key + "][" + i + "].Key")" value="@item.Key" /></td>
+                                                                    <td><input type="text" class="form-control form-control-sm" match="아기정보값" name="@("TemplateModel.TemplateRepeats[" + babyProperies.Key + "][" + i + "].Value")" value="@item.Value" /></td>
+                                                                </tr>
+                                                                i++;
+                                                            }
+                                                        }
+                                                    </table>
+                                                }
+
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- 아빠엄마 정보 -->
+                    <div class="card mb-2 shadow PCC03">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>부모정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample4">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">아빠 이름</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm input_match" id="Groom_Name" match="신랑명" asp-for="TemplateModel.TemplateDetail.Groom_Name"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm" id="Groom_Phone" match="신랑전화번호" asp-for="TemplateModel.TemplateDetail.Groom_Phone"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">엄마 이름</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm input_match" id="Bride_Name" match="신부명" asp-for="TemplateModel.TemplateDetail.Bride_Name"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">전화번호</td>
+                                        <td><input type="text" indx="3" class="form-control form-control-sm" id="Bride_Phone" match="신부전화번호" asp-for="TemplateModel.TemplateDetail.Bride_Phone"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 행사일시 입력 -->
+                    <div class="card mb-2 PCC01 PCC02 PCC03">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>행사일시</span></h6>
+                        </div>
+                        @{
+                            DateTime weddingDate;
+                            if (string.IsNullOrEmpty(Model.TemplateModel.TemplateDetail.WeddingDate))
+                                weddingDate = DateTime.Now;
+                            else
+                                weddingDate = DateTime.Parse(Model.TemplateModel.TemplateDetail.WeddingDate);
+
+                            var timeTypeName = Model.TemplateModel.TemplateDetail.Time_Type_Code;
+                            if (Model.TemplateModel.TemplateDetail.Time_Type_Eng_YN == "Y")
+                                timeTypeName = Model.TemplateModel.TemplateDetail.Time_Type_Code == "오후" ? "PM" : "AM";
+
+                            var weddingWeekName = Model.TemplateModel.TemplateDetail.WeddingWeek;
+                            if (Model.TemplateModel.TemplateDetail.WeddingWeek_Eng_YN == "Y")
+                            {
+                                switch (Model.TemplateModel.TemplateDetail.WeddingWeek)
+                                {
+                                    case "월":
+                                        weddingWeekName = "MON";
+                                        break;
+                                    case "화":
+                                        weddingWeekName = "THE";
+                                        break;
+                                    case "수":
+                                        weddingWeekName = "WED";
+                                        break;
+                                    case "목":
+                                        weddingWeekName = "THU";
+                                        break;
+                                    case "금":
+                                        weddingWeekName = "FRI";
+                                        break;
+                                    case "토":
+                                        weddingWeekName = "SAT";
+                                        break;
+                                    case "일":
+                                        weddingWeekName = "SUN";
+                                        break;
+                                }
+                            }
+
+                            var timeTypeCodes = new List<string> { "오전", "오후" };
+                            var EngYn = new Dictionary<string, string> { { "N", "한글" }, { "Y", "영문" } };
+                        }
+                        <div class="collapse show" id="collapseCardExample6">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30" style="width:30%">일자</td>
+                                        <td>
+                                            <div class="input-daterange data" style="display:inline;">
+                                                <input type="text" id="WeddingDate" asp-for="TemplateModel.TemplateDetail.WeddingDate" class="form-control bg-light border-0 small" value="@weddingDate.ToString("yyyy-MM-dd")" match="예식일자" style="width:40%; display:inline;" readonly="readonly" />
+                                                <input type="button" id="btn_WeddingDate" style="display:none" />
+                                                <i class="far fa-calendar-alt"></i>
+                                                <input type="hidden" id="WeddingYY" asp-for="TemplateModel.TemplateDetail.WeddingYY" match="예식년" />
+                                                <input type="hidden" id="WeddingMM" asp-for="TemplateModel.TemplateDetail.WeddingMM" match="예식월" />
+                                                <input type="hidden" id="WeddingDD" asp-for="TemplateModel.TemplateDetail.WeddingDD" match="예식일" />
+                                                <input type="hidden" id="WeddingWeek" asp-for="TemplateModel.TemplateDetail.WeddingWeek" />
+                                                <input type="hidden" id="WeddingWeekName" value="@weddingWeekName" match="예식요일" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30" style="width:30%">시간</td>
+                                        <td>
+                                            @for (var i = 0; i < timeTypeCodes.Count(); i++)
+                                            {
+                                                <input type="radio" id="Time_Type_Code" asp-for="TemplateModel.TemplateDetail.Time_Type_Code" value="@timeTypeCodes[i]" />
+                                                <label class="ml-1 mr-1">@timeTypeCodes[i]</label>
+                                            }
+
+                                            <select id="selHour" name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm" style="width:55px;">
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                            </select>&nbsp;시&nbsp;
+                                            <select id="selMin" name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm" style="width:55px;">
+                                                <option value="00">00</option>
+                                                <option value="05">05</option>
+                                                <option value="10">10</option>
+                                                <option value="15">15</option>
+                                                <option value="20">20</option>
+                                                <option value="25">25</option>
+                                                <option value="30">30</option>
+                                                <option value="35">35</option>
+                                                <option value="40">40</option>
+                                                <option value="45">45</option>
+                                                <option value="50">50</option>
+                                                <option value="55">55</option>
+                                            </select>&nbsp;분&nbsp;
+                                            <input type="hidden" id="Time_Type_Name" match="시간구분" value="@timeTypeName" />
+                                            <input type="hidden" id="WeddingHour" match="예식시" asp-for="TemplateModel.TemplateDetail.WeddingHour" />
+                                            <input type="hidden" id="WeddingMin" match="예식분" asp-for="TemplateModel.TemplateDetail.WeddingMin" />
+                                            <input type="hidden" id="WeddingHHmm" asp-for="TemplateModel.TemplateDetail.WeddingHHmm" />
+                                            <input type="hidden" id="WeddingWeek_Eng_YN" value="@Model.TemplateModel.TemplateDetail.WeddingWeek_Eng_YN" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30" style="width:30%">요일</td>
+                                        <td>
+                                            @for (var i = 0; i < EngYn.Count(); i++)
+                                            {
+                                                <input type="radio" asp-for="TemplateModel.TemplateDetail.WeddingWeek_Eng_YN" value="@EngYn.Keys.ElementAt(i)" />
+                                                <label class="ml-1 mr-1">@EngYn.Values.ElementAt(i)</label>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30" style="width:30%">시간구분</td>
+                                        <td>
+                                            @for (var i = 0; i < EngYn.Count(); i++)
+                                            {
+                                                <input type="radio" asp-for="TemplateModel.TemplateDetail.Time_Type_Eng_YN" value="@EngYn.Keys.ElementAt(i)" />
+                                                <label class="ml-1 mr-1">@EngYn.Values.ElementAt(i)</label>
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- 행사장 정보 -->
+                    <div class="card mb-2 PCC01 PCC02 PCC03">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>행사장 정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample7">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">행사장명</td>
+                                        <td>
+                                            <input type="text" indx="9" class="form-control form-control-sm input_match" id="Weddinghall_Name" match="예식장이름" asp-for="TemplateModel.TemplateDetail.Weddinghall_Name">
+                                            <span asp-validation-for="TemplateModel.TemplateDetail.Weddinghall_Name" class="text-danger"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">층/홀/실</td>
+                                        <td><input type="text" indx="9" class="form-control form-control-sm input_match" id="WeddingHallDetail" match="예식홀" asp-for="TemplateModel.TemplateDetail.WeddingHallDetail"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">행사장주소</td>
+                                        <td><input type="text" indx="9" class="form-control form-control-sm input_match" id="Weddinghall_Address" match="예식장주소" asp-for="TemplateModel.TemplateDetail.Weddinghall_Address"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">행사장연락처</td>
+                                        <td><input type="text" indx="9" class="form-control form-control-sm input_match" id="Weddinghall_PhoneNumber" match="예식장전화번호" asp-for="TemplateModel.TemplateDetail.Weddinghall_PhoneNumber"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- 행사장 정보 -->
+                    <div class="card mb-2" style="display:none;">
+                        <div class="card-header py-3 tmp-card-header">
+                            <h6 class="m-0 font-weight-bold text-primary tmp-text-primary"><span>기타 정보</span></h6>
+                        </div>
+                        <div class="collapse show" id="collapseCardExample7">
+                            <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="table-td-background w-30">버스 안내</td>
+                                        <td><input type="text" class="form-control form-control-sm" id="Etc_Bus_Information" match="버스 안내" asp-for="TemplateModel.TemplateDetail.Etc_Bus_Information"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="table-td-background w-30">자가용 안내</td>
+                                        <td><input type="text" class="form-control form-control-sm" id="Etc_Car_Information" match="자가용 안내" asp-for="TemplateModel.TemplateDetail.Etc_Car_Information"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+        <input type="hidden" id="D-DAY" match="D-DAY" value="D-21" />
+        <div style="display:none" id="Objects">@JsonSerializer.Serialize(Model.TemplateModel.TemplateItemResources)</div>
+        <div style="display:none" id="TB_Area">@JsonSerializer.Serialize(Model.TemplateModel.TemplateAreas)</div>
+        <div style="display:none" id="TB_Template">@JsonSerializer.Serialize(Model.TemplateModel.TemplateSamples)</div>
+        <div style="display:none" id="MappingFields">@Model.TemplateModel.MappingFields</div>
+        @*</div>*@
+    </div>
+    <!-- End of Main Content -->
+    <div class="text-center" style="margin-top:20px">
+        <button type="button" id="btnTemplateClose" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">닫기</button>
+    </div>
+</div>
+<input type="hidden" asp-for="TemplateModel.MoneyGift_Remit_Title_URL" id="MoneyGift_Remit_Title_URL" />
+<input type="hidden" asp-for="TemplateModel.TemplateDetail.Template_ID" />
+
+<a asp-action="GetTemplateList" id="GetTemplateList" style="display:none;"></a>

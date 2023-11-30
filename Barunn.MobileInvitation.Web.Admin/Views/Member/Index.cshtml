@@ -1,0 +1,292 @@
+﻿@model MemberViewModel<List<AdmimOrderMember>>
+@{
+    Layout = "_Layout";
+}
+
+<!-- Date Picker -->
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    #loading {
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        position: fixed;
+        display: block;
+        opacity: 0.8;
+        background: white;
+        z-index: 99;
+        text-align: center;
+    }
+
+
+
+        #loading > img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 100;
+        }
+
+    .wrap-loading { /*화면 전체를 어둡게 합니다.*/
+
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6); /*not in ie */
+
+        filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#20000000', endColorstr='#20000000'); /* ie */
+    }
+
+        .wrap-loading div { /*로딩 이미지*/
+
+            position: fixed;
+            top: 35%;
+            left: 33%;
+            color: white;
+            font-size: 20px;
+            /* margin-left:-100px;
+            margin-top: -21px;*/
+        }
+
+    .display-none { /*감추기*/
+
+        display: none;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">회원관리</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="get" asp-action="Index" id="Member">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr class="trSize">
+                                <td class="tdSize">검색</td>
+                                <td><input type="text" asp-for="Searchtxt" class="form-control form-control-sm" placeholder="이름 또는 ID를 입력하세요" style="width:44%; display:inline;"></td>
+                            </tr>
+                            <tr class="trSize">
+                                <td class="tdSize">기간</td>
+                                <td>
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-group input-daterange" style="display:inline;">
+                                        <input type="text" asp-for="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" id="startDate" class="form-control bg-light border-0 small"
+                                               style="width:25%; display:inline;" readonly="readonly" />
+
+                                        <input type="text" asp-for="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" id="endDate" class="form-control bg-light border-0 small"
+                                               style="width:25%; display:inline;" readonly="readonly" />
+
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="trSize">
+                                <td class="tdSize">회원</td>
+                                <td style="padding:0.75rem;vertical-align:middle;">
+                                    @foreach (var mgubun in Model.MemberGubuns)
+                                    {
+                                        <input type="radio" asp-for="SeachMemberYn" value="@mgubun.Value" class="ml-2" /><label style="margin-bottom: 0px">@mgubun.Text</label>
+                                    }
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Index" asp-controller="Member" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="IndexExcel" asp-all-route-data="@Model.RouteData" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr style="text-align: center">
+                            <th>No</th>
+                            <th>이름</th>
+                            <th>ID</th>
+                            <th>청첩장구매</th>
+                            <th>모초무료제작</th>
+                            <th>모초유료제작</th>
+                            <th>가입구분</th>
+                            <th>예식일자</th>
+                            <th>회원가입</th>
+                            <th>로그인</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+
+                            int currentno = Model.Count - Model.PageFrom;
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="10" style="text-align: center;background: none">회원 리스트가 없습니다</td>
+                            </tr>
+
+                        }
+
+                        @foreach (var item in Model.DataModel)
+                        {
+                            <tr>
+                                <td class="tdRight">
+                                    @currentno
+                                </td>
+                                <td class="tdLeft" style="text-decoration: underline;">
+                                    <a asp-action="Detail" asp-controller="Member" asp-route-memberType="@item.Member_Type" asp-route-id="@item.User_Id"
+                                       asp-route-returnUrl="@Model.ReturnUrl">@item.User_Name</a>
+                                </td>
+                                <td class="tdLeft">@item.User_Id</td>
+                                <td class="tdCenter">@(item.InvitationBuy ? "○" : "")</td>
+                                <td class="tdCenter">@(item.BMFree ? "○" : "")</td>
+                                <td class="tdCenter">@(item.BMBuy ? "○" : "")</td>
+                                <td class="tdCenter">@item.Join_Type</td>
+                                <td class="tdCenter">@item.Wedding_Date</td>
+                                <td class="tdCenter">@item.Regist_Datetime?.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="tdCenter">
+                                    <a asp-action="UserLogin" asp-controller="Member" asp-route-id="@item.Order_ID" target="_blank" style="text-decoration: underline;">[로그인]</a>
+                                </td>
+                            </tr>
+                            currentno--;
+                        }
+
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;실시간 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;가입구분에 M은 모바일초대장 사이트에서, 바/비/더/프/몰은 각 사이트에서 가입한 회원입니다.</li>
+                </ul>
+
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+
+    <div class="wrap-loading">
+
+        <div>전체 회원을 검색하는 중입니다....잠시 시간이 소요될 수 있습니다</div>
+
+    </div>
+
+
+</div>
+<iframe id="iframeExcel" name="iframeExcel" style="width:1px; height:1px;"></iframe>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $().ready(function (e) {
+
+            $(".date-term").click(function (e) {
+                $(".date-term").removeClass('active');
+                $(this).addClass('active');
+
+                var t = $(this).data('term');
+                var st = $('#startDate');
+                var ed = $('#endDate');
+                var now = new Date();
+                var tmpDt = new Date();
+                ed.val(toStringByFormatting(now, '-'));
+                if (t == 1) {
+                    tmpDt.setDate(tmpDt.getDate() - 7);
+                    st.val(toStringByFormatting(tmpDt, '-'));
+                }
+                else if (t == 2) {
+                    tmpDt.setMonth(tmpDt.getMonth() - 1);
+                    tmpDt.setDate(tmpDt.getDate() + 1);
+
+                    st.val(toStringByFormatting(tmpDt, '-'));
+                }
+                else if (t == 3) {
+                    tmpDt.setMonth(tmpDt.getMonth() - 3);
+                    tmpDt.setDate(tmpDt.getDate() + 1);
+
+                    st.val(toStringByFormatting(tmpDt, '-'));
+                }
+
+                $('#termType').val(t)
+            });
+
+            $('.wrap-loading').addClass('display-none');
+
+        });
+   
+        $(".input-daterange").each(function () {
+            var $inputs = $(this).find('input:text');
+            $inputs.datepicker({
+                showOn: "both", //focus, button, both 중에 선택할 수 있습니다.focus 는 포커스가 오면 달력이 팝업 됩니다.button 은 버튼을 클릭하면 달력이 팝업 됩니다.both는 두 가지 경우 모두에서 팝업 됩니다.
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            });
+
+            if ($inputs.length >= 2) {
+                var $from = $inputs.eq(0);
+                var $to = $inputs.eq(1);
+
+                $from.on('changeDate', function (e) {
+                    var d = new Date(e.date.valueOf());
+                    $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+                });
+                $to.on('changeDate', function (e) {
+
+                    var d = new Date(e.date.valueOf());
+                    $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+                });
+            }
+        })
+
+    </script>
+}

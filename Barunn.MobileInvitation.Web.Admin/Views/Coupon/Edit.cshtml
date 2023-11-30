@@ -1,0 +1,441 @@
+﻿@model CouponEditModel
+@{
+    Layout = "_Layout";
+}
+<!-- Date Picker -->
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    #file {
+        display: none;
+    }
+
+    textarea {
+        box-sizing: border-box;
+        resize: none;
+    }
+    .product_item {
+        font-size: 14px;
+        color: #333;
+    }
+    .cp_list {
+        margin-bottom: 0;
+        padding-left: 0;
+    }
+
+        .cp_list li {
+            display: inline-block;
+            margin: 0 10px 0.75rem 0;
+        }
+
+        .cp_list .check_product {
+            width: 94px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background: #f4f5fe;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+        }
+
+            .cp_list .check_product a {
+                margin-left: 10px;
+            }
+</style>
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <!-- Card Header - Accordion -->
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">@ViewData["Title"]</h6>
+        </div>
+        <div class="collapse show" id="collapseCardExample2" style="">
+            <form asp-action="Save" asp-controller="Coupon" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                <input type="hidden" asp-for="Coupon_ID" />
+                <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                    <tbody>
+                        <tr>
+                            <td class="table-td-background" style="width: 15%;">쿠폰명</td>
+                            <td class="table-td-content">
+                                <input type="text" asp-for="Coupon_Name" readonly="@(!Model.IsSave)" class="form-control form-control-sm" placeholder="쿠폰명을 입력하세요" style="display:inline; width:50%">
+                                <span asp-validation-for="Coupon_Name" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">발급방식</td>
+                            <td class="table-td-content">
+                                @foreach (var item in Model.Publish_Method_Codes)
+                                {
+                                    <input type="radio" asp-for="Publish_Method_Code" value="@item.Value" disabled="@(!Model.IsSave)" style="vertical-align :middle; margin-right: 5px; margin-bottom:3px;" /><label class="ml-1">@item.Text</label><br />
+                                }
+                                <span asp-validation-for="Publish_Method_Code" class="text-danger"></span>
+                                <input type="hidden" asp-for="Publish_Method_Code" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">발급대상</td>
+                            <td class="table-td-content">
+                                <select asp-for="Publish_Target_Code" asp-items="Model.Publish_Target_Codes" disabled="@(!Model.IsSave)" class="form-control form-control-sm" style="width:22%"></select>
+                                <span asp-validation-for="Publish_Target_Code" class="text-danger"></span>
+                                <input type="hidden" asp-for="Publish_Target_Code" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">사용가능 기준</td>
+                            <td class="table-td-content">
+                                <select asp-for="Use_Available_Standard_Code" asp-items="Model.Use_Available_Standard_Codes" disabled="@(!Model.IsSave)" class="form-control form-control-sm Use_Available_Standard_Code" style="width: 22%; display: inherit"></select>
+                                <div style="display:none;" class="Standard_Purchase_Price">
+                                    <input asp-for="Standard_Purchase_Price" placeholder="숫자입력" readonly="@(!Model.IsSave)" style="width:100px;display:inherit;margin-left:10px;" class="form-control form-control-sm" />
+                                    <span class="ment2" style="margin-bottom:0px;margin-top:10px;"> 원 이상 구매시</span>
+                                </div>
+                                <span asp-validation-for="Use_Available_Standard_Code" class="text-danger"></span>
+                                <span asp-validation-for="Standard_Purchase_Price" class="text-danger"></span>
+                                <input type="hidden" asp-for="Use_Available_Standard_Code" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">적용 상품</td>
+                            <td class="table-td-content">
+                                <select asp-for="Coupon_Apply_Code" asp-items="Model.Coupon_Apply_Codes" class="form-control form-control-sm d-sm-inline-block Coupon_Apply_Codes" style="width:22%"></select>
+                                <input type="hidden" asp-for="Coupon_Apply_Code" />
+                                <input type="hidden" asp-for="Coupon_Apply_Product_ID" />
+                                @* 적용 상품 - 적용/제외 Prodoct Code 목록, TB_APPLY_PRODUCT 테이블에 기록 폼값 등록 필요*@
+                               
+                                <a id="Coupon_Apply_Pop" asp-action="Coupon_Apply_ProdcutList" class="d-none btn btn-sm btn-primary shadow-sm ml-2 d-none">적용상품 확인/선택</a>
+                                
+                                <span asp-validation-for="Coupon_Apply_Code" class="text-danger"></span>
+                                <div id="Apply_Product_Codes" style="display:block;">
+                                    @foreach (var prodItem in Model.Apply_Product_Codes)
+                                    {
+                                        var idx = Guid.NewGuid().ToString();
+
+                                        <div>
+                                            <input type="hidden" name="Apply_Product_Codes.index" value="@idx" />
+                                            <input type="hidden" class="product_item" name="Apply_Product_Codes[@idx]" value="@prodItem" />
+                                            <span class="product_item">@prodItem,</span>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">할인금액</td>
+                            <td>
+                                <select asp-for="Discount_Method_Code" asp-items="Model.Discount_Method_Codes" disabled="@(!Model.IsSave)" class="form-control form-control-sm Discount_Method_Codes" style="width: 22%; display: inherit"></select>
+                                <input type="hidden" asp-for="Discount_Method_Code" />
+                                <div class="Discount_Method_Code">
+                                    <input type="text" asp-for="Discount_Value" placeholder="숫자입력" readonly="@(!Model.IsSave)" style="width:100px;display:inherit;margin-left:10px;" class="form-control form-control-sm" />
+                                </div>
+                                <p class="ment" style="margin-bottom:0px;margin-top:10px;">- 프런트 금액 계산시 십단위 이하 절사</p>
+                                <span asp-validation-for="Discount_Method_Code" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">유효기간</td>
+                            <td>
+
+                                <input type="radio" asp-for="Period_Method_Code" value="PMC01" disabled="@(!Model.IsSave)" style="margin-right: 10px;" />
+                                <div class="input-group input-daterange" style="display:inline;">
+                                    <input type="text" asp-for="Publish_Start_Date" class="form-control bg-light border-0 small"
+                                           value="@Model.Publish_Start_Date?.ToString("yyyy-MM-dd")"
+                                           style="width:15%; display:inline;" readonly="readonly" />
+                                    <input type="button" id="btn_Start_Date" style="display:none" />
+                                    <i class="far fa-calendar-alt"></i> -
+                                    <input type="text" asp-for="Publish_End_Date" class="form-control bg-light border-0 small"
+                                           value="@Model.Publish_End_Date?.ToString("yyyy-MM-dd")"
+                                           style="width:15%; display:inline;" readonly="readonly" />
+                                    <input type="button" id="btn_End_Date" style="display:none" />
+                                    <i class="far fa-calendar-alt"></i>
+                                </div>
+                                <br /> <br />
+
+                                <input type="radio" asp-for="Period_Method_Code" value="PMC02" disabled="@(!Model.IsSave)" style="margin-right: 10px;" />@Model.Period_Method_Codes.First(m => m.Value == "PMC02").Text
+                                <select asp-for="Publish_Period_Code" asp-items="Model.Publish_Period_Codes" disabled="@(!Model.IsSave)" class="form-control form-control-sm" style="width: 70px; display: inherit; margin-left: 10px;"></select>일
+                                <input type="hidden" asp-for="Publish_Period_Code" />
+                                <br /> <br />
+
+                                <input type="radio" asp-for="Period_Method_Code" value="PMC03" disabled="@(!Model.IsSave)" style="margin-right: 10px;" />@Model.Period_Method_Codes.First(m => m.Value == "PMC03").Text
+                                <br />
+
+                                <span asp-validation-for="Period_Method_Code" class="text-danger"></span>
+                                <input type="hidden" asp-for="Period_Method_Code" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">
+                                쿠폰 설명
+                            </td>
+                            <td>
+                                <textarea asp-for="Description" class="form-control form-control-sm" placeholder="입력시 고객 마이페이지에 설명이 노출됩니다." data-autoresize rows="5"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-background">쿠폰 이미지</td>
+
+                            <td>
+                                쿠폰이미지는 프런트에 동일하게 표시되며, 쿠폰별 개별 이미지를 사용하지 않습니다.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-center">
+                    <button type="submit" asp-action="Save" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mt-4 mb-4">
+                        저장
+                    </button>
+                    @if (Model.IsSave && Model.Coupon_ID > 0)
+                    {
+                    <a asp-action="Delete" asp-route-id="@Model.Coupon_ID" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm couponDelete">
+                        삭제
+                    </a>
+                    }
+                    @if (ViewData["ReturnUrl"] != null && Model.Coupon_ID > 0)
+                    {
+                        <a href="@ViewData["ReturnUrl"]" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm mt-4 mb-4">취소</a>
+                    }
+                    <input type="hidden" asp-for="Use_YN" />
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <!-- 적용상품 확인/선택 팝업 -->
+    <div class="modal fade" id="productCheck" tabindex="-1" aria-labelledby="productCheck" aria-hidden="true" style="display: none;">
+        <input type="hidden" id="categoryurl" value="@Url.Action("Categories")" />
+        <div class="modal-dialog" role="document" style=" max-width:900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">적용상품 확인/선택</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <colgroup>
+                            <col style="width:150px" />
+                            <col style="width:auto" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <td>선택한 상품</td>
+                                <td style="padding-bottom:0;">
+                                    <ul class="cp_list" style="max-height: 98px; overflow-y: auto;">
+                                        
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <form id="frm_Coupon_Apply_Pop" asp-action="Coupon_Apply_ProdcutList" method="get">
+                        <table class="table table-bordered mt-2" width="100%" cellspacing="0">
+                            <colgroup>
+                                <col style="width:150px" />
+                                <col style="width:auto" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <td>분류</td>
+                                    <td>
+                                        <select id="Category_Id1" name="Category_Id1" class="form-control form-control-sm d-sm-inline-block" style="width: 20%; display: inline;">
+                                            <option value="">선택하세요</option>
+                                        </select>
+                                        <select id="Category_Id2" name="Category_Id2" class="form-control form-control-sm d-sm-inline-block" style="width:22%;">
+                                            <option value="">선택하세요</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>상품명</td>
+                                    <td>
+                                        <input type="text" name="Searchtxt" class="form-control form-control-sm" placeholder="상품코드 혹은 상품명을 입력하세요">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-center" style="margin-bottom: 20px;">
+                            <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                            <button type="button" id="popReset" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</button>
+                        </div>
+                    </form>
+                    <div class="product_list_table" style="max-height:350px; overflow-y:auto;">
+                        
+                    </div>
+                   
+                </div>
+                @*//팝업 내용 팝업 하단*@
+                <div class="modal-footer" style="text-align: center; display: block; margin-top:20px;">
+                    <button id="btn_Coupon_Apply_Pop" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" type="button">닫기</button>
+                </div>
+                @*//팝업 하단*@
+            </div>
+        </div>
+    </div>
+    <!-- 적용상품 확인/선택 팝업 -->
+</div>
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function (e) {
+            $(".Use_Available_Standard_Code").change();
+            $(".Coupon_Apply_Codes").change();
+            $(".Discount_Method_Codes").change();
+
+            $.ajax({
+                url: $("#categoryurl").val(),
+                type: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                $(data).each(function (index, item) {
+                    $("#Category_Id1").append("<option value=\"" + item.value + "\">" + item.text + "</option>");
+                });
+            });
+        });
+
+        $(".Use_Available_Standard_Code").change(function (e) {
+            var div = $(".Standard_Purchase_Price");
+            if ($(this).val() == "USC02") { // 사용가능 기준 -> 구매금액기준 선택
+                div.show();
+            } else {
+                div.hide();
+            }
+        });
+
+        $(".Coupon_Apply_Codes").change(function (e) {
+            var btn = $("#Coupon_Apply_Pop");
+            if ($(this).val() == "CET02" || $(this).val() == "CET03") {
+                btn.addClass("d-sm-inline-block");
+            } else {
+                btn.removeClass("d-sm-inline-block");
+            }
+        });
+
+        $(".Discount_Method_Codes").change(function (e) {
+            var div = $(".Discount_Method_Code, .ment ");
+            if ($(this).val() == "DMC03") { // 전액시 숨김
+                div.hide();
+            } else {
+                div.show();
+            }
+        });
+
+        //적용상품 확인 / 선택
+        $("#Coupon_Apply_Pop").click(function (e) {
+            e.preventDefault();
+            $('#frm_Coupon_Apply_Pop').submit();
+            $("#productCheck").modal("show");
+            getProductCodes();
+
+        });
+        $("#btn_Coupon_Apply_Pop").click(function (e) {
+            e.preventDefault();
+            $("#productCheck div.product_list_table").html('');
+            $("#productCheck").modal("hide");
+        });
+
+        var getProductCodes = function () {
+            $("ul.cp_list > li").remove();
+            $('#Apply_Product_Codes input.product_item').each(function (index, item) {
+                $("ul.cp_list").append('<li><div class="check_product">' + $(item).val() + '<a href="#none">X</a><input type="hidden" value="' + $(item).val() + '" /></div></li>');
+            });
+        };
+        //팝업창에서 상품코드 선택시 상품 추가
+        $(document).on('click', 'a.selectcode', function (e) {
+            e.preventDefault();
+            var code = $(this).next().val();
+            var exists = $('#Apply_Product_Codes input.product_item').filter(function () { return this.value == code });
+            if (!exists.length) {
+                var idx = newGuid();
+                $("#Apply_Product_Codes").append('<div>' +
+                    '<input type="hidden" name="Apply_Product_Codes.index" value = "' + idx + '" /> ' +
+                    '<input type="hidden" class="product_item" name="Apply_Product_Codes[' + idx + ']" value="' + code + '" />' +
+                    '<span class="product_item">' + code + ',</span>' +
+                    '</div>'
+                );
+
+                getProductCodes();
+            }
+        });
+
+        //상품 제거
+        $(document).on('click', 'ul.cp_list > li a', function (e) {
+            e.preventDefault();
+            var code = $(this).next().val();
+            $('#Apply_Product_Codes input.product_item').filter(function () { return this.value == code }).parent('div').remove();
+            getProductCodes();
+        });
+
+        //팝업창의 폼 제출시
+        $("body").on("submit", '#frm_Coupon_Apply_Pop', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var url = form.attr('action');
+
+            $.ajax({
+                cache: false,
+                url: url,
+                type: 'GET',
+                data: form.serialize()
+            }).done(function (data, textStatus, jqXHR) {
+                $("#productCheck div.product_list_table").html(data);
+                getProductCodes();
+            });
+        });
+
+        $("#Category_Id1").change(function(e) {
+            $("#Category_Id2 option").remove();
+            $("#Category_Id2").append("<option value=\"\">선택하세요</option>");
+
+            $.ajax({
+                url: $("#categoryurl").val() + '/' + $(this).val(),
+                type: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                $(data).each(function (index, item) {
+                    $("#Category_Id2").append("<option value=\"" + item.value + "\">" + item.text + "</option>");
+                });
+            });
+        });
+        $("#popReset").click(function (e) {
+            $("#frm_Coupon_Apply_Pop")[0].reset();
+            $("#Category_Id1").change();
+        });
+
+        $("a.couponDelete").on('click', function () {
+            return confirm("쿠폰을 삭제 하시겠습니까?");
+        });
+
+        $(".input-daterange").each(function () {
+            var $inputs = $(this).find('input:text');
+            $inputs.datepicker({
+                showOn: "both", //focus, button, both 중에 선택할 수 있습니다.focus 는 포커스가 오면 달력이 팝업 됩니다.button 은 버튼을 클릭하면 달력이 팝업 됩니다.both는 두 가지 경우 모두에서 팝업 됩니다.
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            });
+
+            if ($inputs.length >= 2) {
+                var $from = $inputs.eq(0);
+                var $to = $inputs.eq(1);
+
+                $from.on('changeDate', function (e) {
+                    var d = new Date(e.date.valueOf());
+                    $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+                });
+                $to.on('changeDate', function (e) {
+
+                    var d = new Date(e.date.valueOf());
+                    $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+                });
+            }
+        })
+    </script>
+}

@@ -1,0 +1,180 @@
+﻿@model ProductListViewModel
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">상품목록(템플릿 목록)</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" asp-controller="ProductList">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr class="trSize">
+                                <td class="tdSize">검색</td>
+                                <td colspan="3">
+                                    <input type="text" asp-for="SearchTxt" class="form-control form-control-sm" placeholder="제품코드 또는 제품명을 입력하세요">
+                                </td>
+                            </tr>
+                            <tr class="trSize">
+                                <td class="tdSize">분류</td>
+                                <td>
+                                    @for (var i = 0; i < Model.ProductCategoryCodes.Count(); i++)
+                                    {
+                                        <input type="radio" asp-for="SearchKind" value="@Model.ProductCategoryCodes[i].Value"
+                                               style="margin-left: 10px;"/>
+                                        @Model.ProductCategoryCodes[i].Text
+                                    }
+                                </td>
+                                <td class="tdSize">브랜드</td>
+                                <td>
+                                    <div>
+                                        <input type="checkbox" id="chkBrandAll" value="ALL"  style="margin-left:20px;"/>
+                                        <label for="chkBrandAll">전체</label>
+                                    </div>
+                                    @for (var i = 0; i < Model.ProductBarnds.Count; i++)
+                                    {
+                                        <div>
+                                            <input type="checkbox" asp-for="@Model.ProductBarnds[i].Selected" style="margin-left:20px;" />
+                                            <label asp-for="@Model.ProductBarnds[i].Selected">@Model.ProductBarnds[i].Text</label>
+                                            <input type="hidden" asp-for="@Model.ProductBarnds[i].Value" />
+                                            <input type="hidden" asp-for="@Model.ProductBarnds[i].Text" />
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                            <tr class="trSize">
+                                <td class="tdSize">진열</td>
+                                <td colspan="3">
+                                    @for (var i = 0; i < Model.ViewYns.Count(); i++)
+                                    {
+                                        <input type="radio" asp-for="SearchViewYn" value="@Model.ViewYns[i].Value" 
+                                               style="margin-left: 10px;"/>
+                                        @Model.ViewYns[i].Text
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Index" asp-controller="ProductList" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="ListExcel" asp-controller="ProductList" asp-all-route-data="@Model.RouteData"
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">
+                    엑셀 다운로드
+                </a>
+            </h6>
+        </div>
+
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>이미지</th>
+                            <th>브랜드</th>
+                            <th>상품명</th>
+                            <th>제품코드</th>
+                            <th>가격</th>
+                            <th>진열상태</th>
+                            <th>최초 등록일</th>
+                            <th>최종 수정일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="11" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+
+                        }
+                        else
+                        {
+                            int count = Model.Count - Model.PageFrom;
+                            @foreach (var item in Model.Products)
+                            {
+
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td class="tdCenter">
+                                        <img class="Main_Image_URL" cdn-src="@item.Main_Image_URL" style="height: 50px;" />
+                                    </td>
+                                    <td class="tdLeft">
+                                        @(Model.ProductBarnds.First(m => m.Value == item.Product_Brand_Code).Text)
+                                    </td>
+                                    <td class="tdLeft">
+                                        @item.Product_Name
+                                    </td>
+                                    <td class="tdCenter" style="text-decoration: underline;">
+                                        <a asp-action="Edit" asp-controller="ProductRegist" asp-route-id="@item.Product_ID">@item.Product_Code</a>
+                                    </td>
+                                    <td class="tdRight">
+                                        @item.Price.ToString("#,##0")
+                                    </td>
+                                    <td class="tdCenter">
+                                        @(Model.ViewYns.FirstOrDefault(m => m.Value == item.Display_YN)?.Text)
+                                    </td>
+                                    <td class="tdCenter">
+                                        @item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm")
+                                    </td>
+                                    <td class="tdCenter">
+                                        @item.Update_DateTime?.ToString("yyyy-MM-dd HH:mm")
+                                    </td>
+                                </tr>
+                                count--;
+                            }
+
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+
+@section Scripts
+{
+<script type="text/javascript">
+    $(document).ready(function (e) {
+
+        $("#chkBrandAll").prop("checked", $("input:checkbox[name^=ProductBarnds]").length == $("input:checkbox[name^=ProductBarnds]:checked").length);
+
+        
+    });
+    // 전체를 클릭하면 나머지 체크박스 전부 체크 처리(브랜드 선택 리스트)
+    $("#chkBrandAll").click(function () {
+        $("[name^=ProductBarnds]").prop("checked", this.checked);
+    });
+    //각 체크박스를 모두 클릭하면 전체체크박스 자동 체크 / 해제
+    $("[name^=ProductBarnds]").click(function () {
+        $("#chkBrandAll").prop("checked", $("input:checkbox[name^=ProductBarnds]").length == $("input:checkbox[name^=ProductBarnds]:checked").length);
+    });
+</script>
+}

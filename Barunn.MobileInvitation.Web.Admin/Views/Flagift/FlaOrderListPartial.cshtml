@@ -1,0 +1,94 @@
+﻿@model FlaOrderItemsViewModel
+@{
+    Layout = null;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">화환 선물 상세</h5>
+    <button class="close" type="button" aria-label="Close" data-dismiss="modal">
+        <span aria-hidden="true">×</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                @Model.UserName 님
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>구분</th>
+                            <th>주문자</th>
+                            <th>상품</th>
+                            <th>결제금액</th>
+                            <th>화환주문일시</th>
+                            <th>화환배송일시</th>
+                            <th>배송상태</th>
+                            <th>화환배송지</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="13" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            <tr>
+                                <td class="tdCenter">
+                                    @currentno
+                                </td>
+                                <td class="tdCenter">
+                                    @item.OrderTitle
+                                </td>
+                                <td class="tdCenter">
+                                    @item.OrderName
+                                </td>
+                                <td class="tdLeft">
+                                    @item.ProductName
+                                </td>
+                                <td class="tdRight">
+                                    @item.SalePrice.ToString("#,###")
+                                </td>
+                                <td class="tdCenter">
+                                    @item.OrderDate.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td class="tdCenter">
+                                    @item.DeliveryDate?.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                 <td class="tdCenter">
+                                    @item.OrderStateName
+                                </td>
+                                <td class="tdLeft">
+                                    @item.DeliveryAddress
+                                </td>
+                            
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                    
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer" style="text-align: center; display: block;">
+    @if (Model.Count > 0)
+    {
+
+        <!-- 페이징 추가 -->
+        await Html.RenderPartialAsync("_PaginationPartial", Model);
+    }
+</div>

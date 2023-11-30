@@ -1,0 +1,341 @@
+﻿@model OrderCancelSearchViewModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar {
+        width: 253px !important;
+    }
+
+    #content {
+        width: 100% !important;
+    }
+</style>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">취소/환불 목록</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="post" asp-action="Cancel" asp-controller="Order" id="frmSearch">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">검색</td>
+                                <td colspan="4"><input type="text" asp-for="Keyword" class="form-control bg-light border-0 small" placeholder="주문번호, 아이디, 이름, 환불방법으로 검색하세요." style="width:44%; display:inline;"></td>
+                            </tr>
+                            <tr>
+                                <td>기 간</td>
+                                <td colspan="4">
+                                    <select name="SeachKind" aria-controls="dataTable" style="width:10%; display: inline;" class="form-control form-control-sm">
+                                        <option value="">주문일</option>
+                                    </select>
+
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 0 ? "active" : "")" data-term="0">오늘</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-group input-daterange" style="display:inline;">
+                                        <input type="text" asp-for="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" id="startDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i> -
+                                        <input type="text" asp-for="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" id="endDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>사이트</td>
+                                <td colspan="4">
+                                    <input type="checkbox" id="chkBrandAll" value="ALL" />
+                                    <label for="chkBrandAll" class="mr-2">전체</label>
+                                    @for (var i = 0; i < Model.ProductBarnds.Count; i++)
+                                    {
+                                        <input type="checkbox" asp-for="@Model.ProductBarnds[i].Selected" />
+                                        <label asp-for="@Model.ProductBarnds[i].Selected" class="mr-2">@Model.ProductBarnds[i].Text</label>
+                                        <input type="hidden" asp-for="@Model.ProductBarnds[i].Value" />
+                                        <input type="hidden" asp-for="@Model.ProductBarnds[i].Text" />
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>처리상태</td>
+                                <td>
+                                    <input type="checkbox" id="chkRefundStatusAll" value="ALL" />
+                                    <label for="chkRefundStatusAll" class="mr-2">전체</label>
+                                    @for (var i = 0; i < Model.RefundStatuses.Count; i++)
+                                    {
+                                        <input type="checkbox" asp-for="@Model.RefundStatuses[i].Selected" />
+                                        <label asp-for="@Model.RefundStatuses[i].Selected" class="mr-2">@Model.RefundStatuses[i].Text</label>
+                                        <input type="hidden" asp-for="@Model.RefundStatuses[i].Value" />
+                                        <input type="hidden" asp-for="@Model.RefundStatuses[i].Text" />
+                                    }
+
+                                </td>
+                                <td style="background: #f8f8f8">환불방법</td>
+                                <td>
+                                    <input type="checkbox" id="chkRefundTypeAll" value="ALL" />
+                                    <label for="chkRefundTypeAll" class="mr-2">전체</label>
+                                    @for (var i = 0; i < Model.RefundTypes.Count; i++)
+                                    {
+                                        <input type="checkbox" asp-for="@Model.RefundTypes[i].Selected" />
+                                        <label asp-for="@Model.RefundTypes[i].Selected" class="mr-2">@Model.RefundTypes[i].Text</label>
+                                        <input type="hidden" asp-for="@Model.RefundTypes[i].Value" />
+                                        <input type="hidden" asp-for="@Model.RefundTypes[i].Text" />
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Cancel" asp-controller="Order" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                    <input type="hidden" asp-for="PageSize" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="CancelExcel" asp-controller="Order" asp-all-route-data="@Model.RouteData" class="d-none d-sm-inline-block btn btn-sm btn-secondary2  shadow-sm">엑셀 다운로드</a>
+                <select name="Paging" asp-for="PageSize" asp-items="Model.PageSizes" style="width:10%;display: inline;" class="form-control form-control-sm">
+                </select>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>브랜드</th>
+                            <th>이름</th>
+                            <th>아이디</th>
+                            <th>주문번호</th>
+                            <th>제품코드</th>
+                            <th>주문금액</th>
+                            <th>쿠폰금액</th>
+                            <th>결제금액</th>
+                            <th>결제수단</th>
+                            <th>환불방법</th>
+                            <th>결제일</th>
+                            <th>환불상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="13" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            var colBarunsonmCardUrl = new Uri(Model.BarunsonmCardUrl, item.Invitation_Url);
+
+                            var colRefund_Status = item.Refund_Status_Name;
+                            if (item.Refund_Status_Code == "RSC02")  //환불완료
+                                colRefund_Status = item.Refund_DateTime?.ToString("yyyy-MM-dd HH:mm");
+
+                            var useridlink = item.Member_Type == "U" ? item.User_Id : item.User_Email;
+
+                    <tr>
+                        <td class="tdCenter">
+                            @currentno
+                        </td>
+                        <td class="tdLeft">@item.Product_Brand_Name</td>
+                        <td class="tdLeft" style="text-decoration: underline;">
+                            <a asp-action="Detail" asp-controller="Member" asp-route-memberType="@item.Member_Type" asp-route-id="@useridlink"
+                               asp-route-returnUrl="@Model.ReturnUrl">@item.User_Name</a>
+                        </td>
+                        <td class="tdLeft">@item.User_Id</td>
+                        <td class="tdLeft" style="text-decoration: underline;">
+                            <a href="@colBarunsonmCardUrl" target="_blank"> @item.Order_Code</a>
+                            <a asp-action="index" asp-controller="Invitation" asp-route-id="@item.Order_ID" target="_blank">[수정]</a>
+                        </td>
+                        <td class="tdCenter" style="text-decoration: underline;">
+                            <a asp-action="Edit" asp-controller="ProductRegist" asp-route-id="@item.Product_ID" target="_blank">@item.Product_Code</a>
+                        </td>
+                        <td class="tdRight">@item.Order_Price.ToString("#,###")</td>
+                        <td class="tdRight">@item.Coupon_Price?.ToString("#,###")</td>
+                        <td class="tdRight">@item.Payment_Price?.ToString("#,###")</td>
+                        <td class="tdCenter"> @item.Payment_Method_Name</td>
+                        <td class="tdCenter"> @item.Refund_Type_Name</td>
+                        <td class="tdCenter"> @item.Order_DateTime?.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td class="tdCenter">@colRefund_Status</td>
+                    </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;결제수단 상태값 정의</li>
+                    <li class="adviceLi">- 사이트 내 결제 시 : 카드결제, 계좌이체, 가상계좌(무통장)</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;환불방법 상태값 정의</li>
+                    <li class="adviceLi">
+                        - 카드결제 취소 : 어드민 또는 프런트에서 취소시 PG연동
+                    </li>
+                    <li class="adviceLi">
+                        - 계좌이체 취소 : 어드민 또는 프런트에서 취소시 PG연동
+                    </li>
+                    <li class="adviceLi">
+                        - 가상계좌(무통장) 취소 : 수동으로 입금처리 필요(PG연동 안됨)
+                    </li>
+
+                </ul>
+                <ul class="adviceUl">
+                    <li>3.&nbsp;&nbsp;환불 상태값 정의</li>
+                    <li class="adviceLi">
+                        - 환불접수 : 환불접수 상태
+                    </li>
+                    <li class="adviceLi">
+                        - 환불완료 : 환불완료 상태, 환불완료 날짜 표시
+                    </li>
+                    <li class="adviceLi">
+                        - 환불취소 : 환불완료 전, 고객 또는 내부 사정에 의해 환불 취소 상태
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+            $("#chkBrandAll").prop("checked", $("input:checkbox[name^=ProductBarnds]").length == $("input:checkbox[name^=ProductBarnds]:checked").length);
+            $("#chkRefundStatusAll").prop("checked", $("input:checkbox[name^=RefundStatuses]").length == $("input:checkbox[name^=RefundStatuses]:checked").length);
+            $("#chkRefundTypeAll").prop("checked", $("input:checkbox[name^=RefundTypes]").length == $("input:checkbox[name^=RefundTypes]:checked").length);
+
+            var $from = $('#startDate');
+            var $to = $('#endDate');
+
+            $from.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+            });
+
+            $to.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+            });
+        });
+
+        $(".date-term").click(function (e) {
+            $(".date-term").removeClass('active');
+            $(this).addClass('active');
+
+            var t = $(this).data('term');
+            var st = $('#startDate');
+            var ed = $('#endDate');
+            var now = new Date();
+            var tmpDt = new Date();
+            ed.val(toStringByFormatting(now, '-'));
+            if (t == 0) {
+                st.val(toStringByFormatting(now, '-'));
+            }
+            else if (t == 1) {
+                tmpDt.setDate(tmpDt.getDate() - 7);
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 2) {
+                tmpDt.setMonth(tmpDt.getMonth() - 1);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 3) {
+                tmpDt.setMonth(tmpDt.getMonth() - 3);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+
+            $('#termType').val(t)
+        });
+
+
+        $("[name=Paging]").change(function () {
+
+            $("#PageSize").val($("[name=Paging]").val());
+            $("#frmSearch").submit();
+            return false;
+
+        });
+        $("#chkBrandAll").click(function () {
+            $("[name^=ProductBarnds]").prop("checked", this.checked);
+        });
+        $("[name^=ProductBarnds]").click(function () {
+            $("#chkBrandAll").prop("checked", $("input:checkbox[name^=ProductBarnds]").length == $("input:checkbox[name^=ProductBarnds]:checked").length);
+        });
+        $("#chkRefundStatusAll").click(function () {
+            $("[name^=RefundStatuses]").prop("checked", this.checked);
+        });
+        $("[name^=RefundStatuses]").click(function () {
+            $("#chkRefundStatusAll").prop("checked", $("input:checkbox[name^=RefundStatuses]").length == $("input:checkbox[name^=RefundStatuses]:checked").length);
+        });
+        $("#chkRefundTypeAll").click(function () {
+            $("[name^=RefundTypes]").prop("checked", this.checked);
+        });
+        $("[name^=RefundTypes]").click(function () {
+            $("#chkRefundTypeAll").prop("checked", $("input:checkbox[name^=RefundTypes]").length == $("input:checkbox[name^=RefundTypes]:checked").length);
+        });
+    </script>
+}

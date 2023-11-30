@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Barunn.MobileInvitation.Common", "Barunn.MobileInvitation.Common\Barunn.MobileInvitation.Common.csproj", "{4F541880-1F75-43F2-8816-9085A56885D8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Barunn.MobileInvitation.Web.Admin", "Barunn.MobileInvitation.Web.Admin\Barunn.MobileInvitation.Web.Admin.csproj", "{9ED5A177-C060-4694-8741-CDA4CB222CCC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Barunn.MobileInvitation.Dac", "Barunn.MobileInvitation.Dac\Barunn.MobileInvitation.Dac.csproj", "{A6E876EF-B331-4DBC-BF7E-5F9A51D6B7C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{AFE7DAC2-1D21-4071-9948-DB4BF2D41380}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines-dev.yml = azure-pipelines-dev.yml
+		azure-pipelines-release.yml = azure-pipelines-release.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F541880-1F75-43F2-8816-9085A56885D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F541880-1F75-43F2-8816-9085A56885D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F541880-1F75-43F2-8816-9085A56885D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F541880-1F75-43F2-8816-9085A56885D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ED5A177-C060-4694-8741-CDA4CB222CCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ED5A177-C060-4694-8741-CDA4CB222CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ED5A177-C060-4694-8741-CDA4CB222CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ED5A177-C060-4694-8741-CDA4CB222CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6E876EF-B331-4DBC-BF7E-5F9A51D6B7C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6E876EF-B331-4DBC-BF7E-5F9A51D6B7C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6E876EF-B331-4DBC-BF7E-5F9A51D6B7C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6E876EF-B331-4DBC-BF7E-5F9A51D6B7C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {3EDE23B3-E6C1-4827-96D4-DB15FF7F33E1}
+	EndGlobalSection
+EndGlobal

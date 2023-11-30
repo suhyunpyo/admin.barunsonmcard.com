@@ -1,0 +1,167 @@
+﻿@model SerialCouponPublishAddViewModel
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">쿠폰발급 [@Model.Coupon_Name]</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="PublishAdd" asp-controller="SerialCoupon" id="frmPublishAdd" method="get">
+                <input type="hidden" asp-for="Coupon_ID" />
+                <input type="hidden" asp-for="Coupon_Name" />
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td>검 색</td>
+                                <td>
+                                    <input type="text" asp-for="Keyword" class="form-control form-control-sm" placeholder="이름 또는 아이디를 입력하세요.">
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="PublishAdd" asp-controller="SerialCoupon" asp-route-Coupon_ID="@Model.Coupon_ID" asp-route-Coupon_Name="@Model.Coupon_Name" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+            </h6>
+        </div>
+
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <form asp-action="PublishAddSave" method="post" id="frmPublishAddSave">
+                    <input type="hidden" asp-for="Coupon_ID" />
+                    <table class="table table-bordered" width="100%" cellspacing="0" style="text-align: center">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" class="all-chk-style" id="Allgroup"></th>
+                                <th>No</th>
+                                <th>이름</th>
+                                <th>ID</th>
+                                <th>연락처</th>
+                                <th>예식일</th>
+                                <th>회원가입일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int currentno = Model.DataModel.Count;
+                                int rowidx = 0;
+
+                            }
+                            @if (Model.DataModel.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="7" style="text-align: center">리스트가 없습니다</td>
+                                </tr>
+                            }
+                            @foreach (var item in Model.DataModel)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="UserIds[@rowidx].Selected" value="true" class="chk-style" />
+                                        <input type="hidden" name="UserIds[@rowidx].Value" value="@item.User_ID" />
+                                    </td>
+                                    <td>@currentno</td>
+                                    <td class="tdLeft">@item.User_Name</td>
+                                    <td>@item.User_ID</td>
+                                    <td>@item.Phone_Number</td>
+                                    <td>@item.Wedding_Date?.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.Regist_DateTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                </tr>
+                                currentno--;
+                                rowidx++;
+                            }
+
+                        </tbody>
+                    </table>
+                    <div class="text-center" style="padding-bottom: 20px;">
+                        <button type="submit" class="btn btn-sm btn-primary shadow-sm">쿠폰발행</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script>
+        $("body").on("submit", '#frmPublishAdd', function (e) {
+            var txt = $('input[name="Keyword"]').val();
+
+            if (txt.length < 2) {
+                alert('검색어는 2자 이상 입력해주세요.');
+                return false;
+            }
+        });
+
+
+        $("body").on("submit", '#frmPublishAddSave', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+
+            if ($("input.chk-style:checked").length == 0) {
+                alert("발행 대상을 선택하세요.");
+                return;
+            }
+
+            if (confirm("쿠폰을 발행하시겠습니까?")) {
+                $.ajax({
+                    cache: false,
+                    url: url,
+                    type: 'POST',
+                    data: form.serialize()
+                }).done(function (data) {
+                    if (data['status'] == true) {
+                        alert("정상적으로 추가하였습니다.");
+                        //location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+                });
+            }
+        });
+
+        //쿠폰회수
+        $(document).on("click", 'a.couponRetrieve', function (e) {
+            e.preventDefault();
+            var result = confirm("발행된 쿠폰을 회수 하시겠습니까?");
+            if (result) {
+                //회수처리
+                $.ajax({
+                    url: $(this).attr('href'),
+                    method: 'GET'
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data['status'] == true) {
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+
+                });
+            }
+        });
+
+    </script>
+}

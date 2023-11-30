@@ -1,0 +1,125 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model StatisticsViewModel<FlagiftSaleStatistic>
+@{
+    Layout = "_Layout";
+}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">매출현황 / 월별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form id="frmSearch" method="get" asp-action="SalesMonthly">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">기간</td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="year" id="year" title="년" tabindex="0" style="width:10%; display: inline;"
+                                            asp-for="SelectedYear" asp-items="Model.Years">
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit">검색</button>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm btn-init" type="button">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4" style="padding-top: 10px;">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="SalesMonthlyExcel" asp-route-year="@Model.SelectedYear" 
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 매출통계 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th rowspan=2 style="vertical-align:middle;">일자</th>
+                            <th colspan=2>화환 설정</th>
+                            <th colspan=3>화환 선물</th>
+                        </tr>
+                        <tr class="tdCenter">
+                            <th>선물 설정</th>
+                            <th>선물 취소</th>
+                            <th>선물 건수</th>
+                            <th>취소/환불</th>
+                            <th>결제금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sd in Model.Items)
+                        {
+
+                            <tr>
+                                <td class="chart-lable tdCenter">@sd.Date</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.SetCount))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.SetCancelCount))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.GiftCount))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.GiftCancelCount))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.GiftAmount))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="tdCenter">합계</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.SetCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.SetCancelCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.GiftCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.GiftCancelCount))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.GiftAmount))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;실시간 데이터를 반영 및 표시 합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;용어정의</li>
+                    <li style="padding-left: 1.5em;">-&nbsp;&nbsp;화환 설정 : 모바일 청첩장에서 예비부부가 화환을 받을 수 있도록 설정한 건수입니다.</li>
+                    <li style="padding-left: 2.5em;">&#183;&nbsp;&nbsp;선물 설정 : 화환 선물 "사용함" 카운트</li>
+                    <li style="padding-left: 2.5em;">&#183;&nbsp;&nbsp;선물 취소 : 화환 선물 "사용함" 설정 후 "사용안함"으로 변경 카운트</li>
+                    <li style="padding-left: 1.5em;">-&nbsp;&nbsp;화환 선물 : 하객이 예비부부에게 선물한 화환 데이터입니다.</li>
+                    <li style="padding-left: 2.5em;">&#183;&nbsp;&nbsp;선물 건수 : 하객이 예비부부에게 선물한 화환 주문 건수</li>
+                    <li style="padding-left: 2.5em;">&#183;&nbsp;&nbsp;결제 금액 : 하객이 화환을 결제한 금액</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 매출통계 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script>
+    $().ready(function () {
+        $('.btn-init').click(function (e) {
+            $('#year').val('');
+            $('#frmSearch').submit();
+        });
+
+    });
+
+    </script>
+}

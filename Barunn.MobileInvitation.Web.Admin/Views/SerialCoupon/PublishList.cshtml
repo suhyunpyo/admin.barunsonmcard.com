@@ -1,0 +1,166 @@
+﻿@model SerialCouponPublishSearchViewModel
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">쿠폰상세 [@Model.Coupon_Name]</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="PublishList" asp-controller="SerialCoupon" method="get">
+                <input type="hidden" asp-for="Coupon_ID" />
+                <input type="hidden" asp-for="Coupon_Name" />
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td>검 색</td>
+                                <td>
+                                    <input type="text" asp-for="Keyword" class="form-control form-control-sm" placeholder="이름 또는 아이디를 입력하세요.">
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>사용여부</td>
+                                <td>
+                                    @foreach (var item in Model.Use_YNs)
+                                    {
+                                        <input type="radio" asp-for="Use_YN" value="@item.Value" class="ml-2" /><label class="ml-1">@item.Text</label>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="PublishList" asp-controller="Coupon" asp-route-Coupon_ID="@Model.Coupon_ID" asp-route-Coupon_Name="@Model.Coupon_Name" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+            </h6>
+        </div>
+
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>이름</th>
+                            <th>ID</th>
+                            <th>쿠폰번호</th>
+                            <th>발급일</th>
+                            <th>유효기간</th>
+                            <th>사용일</th>
+                            <th>쿠폰회수</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="8" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            var colExpiration = string.IsNullOrEmpty(item.Expiration_Date) ? "무제한" : item.Expiration_Date;
+                            var colUsed = (item.Use_YN == "Y") ? item.Use_DateTime?.ToString("yyyy-MM-dd HH:mm:ss") : "미사용";
+                            var colCollectionStatus = "";
+                            var isRetrieve = false;
+
+                            if (!string.IsNullOrEmpty(item.User_ID))
+                            {
+                                if (item.Use_YN != "Y")
+                                {
+                                    isRetrieve = (item.Retrieve_DateTime == null);
+                                    colCollectionStatus = item.Retrieve_DateTime?.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    colCollectionStatus = "불가";
+                                }
+                            }
+                            <tr>
+                                <td>@currentno</td>
+                                <td class="tdLeft">@item.User_Name</td>
+                                <td>@item.User_ID</td>
+                                <td>@item.Coupon_Number</td>
+                                <td>@item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>@colExpiration</td>
+                                <td>@colUsed</td>
+                                <td>
+                                    @if (isRetrieve)
+                                    {
+                                        <a class="couponRetrieve" asp-action="Retrieve" asp-controller="SerialCoupon" asp-route-id="@item.Coupon_Publish_ID" style="text-decoration:underline;">
+                                            [회수]
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @colCollectionStatus
+                                    }
+                                </td>
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+
+        });
+        //쿠폰회수
+        $(document).on("click", 'a.couponRetrieve', function (e) {
+            e.preventDefault();
+            var result = confirm("발행된 쿠폰을 회수 하시겠습니까?");
+            if (result) {
+                //회수처리
+                $.ajax({
+                    url: $(this).attr('href'),
+                    method: 'GET'
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data['status'] == true) {
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+                    
+                });
+            }
+        });
+       
+    </script>
+}

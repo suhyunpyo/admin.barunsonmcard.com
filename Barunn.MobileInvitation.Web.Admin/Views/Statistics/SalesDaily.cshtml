@@ -1,0 +1,298 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model StatisticsViewModel<TB_Sales_Statistic_Day>
+@{
+    Layout = "_Layout";
+}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">매출통계 / 일별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form id="frmSearch" method="get" asp-action="SalesDaily">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">기간</td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="year" id="year" title="년" tabindex="0" style="width:10%; display: inline;"
+                                            asp-for="SelectedYear" asp-items="Model.Years">
+                                    </select>
+                                    <select class="form-control form-control-sm" name="month" id="month" title="월" tabindex="1" style="width:10%; display: inline;"
+                                            asp-for="SelectedMonth" asp-items="Model.Months">
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit">검색</button>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm btn-init" type="button">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Area Chart -->
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">일별 현황</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="chart" style="width:100%; height:100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4" style="padding-top: 100px;">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="SalesDailyExcel" asp-route-year="@Model.SelectedYear" asp-route-month="@Model.SelectedMonth"
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 매출통계 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th rowspan=2>일자</th>
+                            <th colspan=3>바른손</th>
+                            <th colspan=3>비핸즈</th>
+                            <th colspan=3>더카드</th>
+                            <th colspan=3>프리미어페이퍼</th>
+                            <th colspan=3>합계</th>
+                        </tr>
+                        <tr class="tdCenter">
+                            <th>매출</th>
+                            <th>무</th>
+                            <th>유</th>
+                            <th>매출</th>
+                            <th>무</th>
+                            <th>유</th>
+                            <th>매출</th>
+                            <th>무</th>
+                            <th>유</th>
+                            <th>매출</th>
+                            <th>무</th>
+                            <th>유</th>
+                            <th>매출</th>
+                            <th>무</th>
+                            <th>유</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sd in Model.Items)
+                        {
+                            DateTime dt = DateTime.ParseExact(sd.Date, "yyyyMMdd", null);
+                            string strDt = dt.ToString("yyyy-MM-dd (ddd)");
+
+                            <tr>
+                                <td class="chart-lable tdCenter" data-chartlabel="@(dt.ToString("dd"))" @(strDt.Contains("토") || strDt.Contains("일") ? "style=color:red;" : "" )>@(strDt)</td>
+                                <td class="tdRight chart-barunn-value" style="color:rgba(0,128,255,1);" data-chartval="@(sd.Barunn_Sales_Price)">@(String.Format("{0:N0}", sd.Barunn_Sales_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Barunn_Free_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Barunn_Charge_Order_Count))</td>
+                                <td class="tdRight chart-bhands-value" style="color:rgba(255,51,255,1);" data-chartval="@(sd.Bhands_Sales_Price)">@(String.Format("{0:N0}", sd.Bhands_Sales_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Bhands_Free_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Bhands_Charge_Order_Count))</td>
+                                <td class="tdRight chart-thecard-value" style="color:rgba(153,153,0,1);" data-chartval="@(sd.Thecard_Sales_Price)">@(String.Format("{0:N0}", sd.Thecard_Sales_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Thecard_Free_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Thecard_Charge_Order_Count))</td>
+                                <td class="tdRight chart-premier-value" style="color:rgba(150,150,150,1);" data-chartval="@(sd.Premier_Sales_Price)">@(String.Format("{0:N0}", sd.Premier_Sales_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Premier_Free_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Premier_Charge_Order_Count))</td>
+                                <td class="chart-total-value tdRight" style="font-weight:bold; color:rgba(0,153,0,1);" data-chartval="@(sd.Total_Sales_Price)">@(String.Format("{0:N0}", sd.Total_Sales_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Total_Free_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Total_Charge_Order_Count))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="tdCenter">합계</td>
+                            <td class="tdRight" style="color:rgba(0,128,255,1);">@(String.Format("{0:N0}", Model.Total.Barunn_Sales_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Barunn_Free_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Barunn_Charge_Order_Count))</td>
+                            <td class="tdRight" style="color:rgba(255,51,255,1);">@(String.Format("{0:N0}", Model.Total.Bhands_Sales_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Bhands_Free_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Bhands_Charge_Order_Count))</td>
+                            <td class="tdRight" style="color:rgba(153,153,0,1);">@(String.Format("{0:N0}", Model.Total.Thecard_Sales_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Thecard_Free_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Thecard_Charge_Order_Count))</td>
+                            <td class="tdRight" style="color:rgba(150,150,150,1);">@(String.Format("{0:N0}", Model.Total.Premier_Sales_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Premier_Free_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Premier_Charge_Order_Count))</td>
+                            <td class="tdRight" style="font-weight:bold; color:rgba(0,153,0,1);">@(String.Format("{0:N0}", Model.Total.Total_Sales_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Total_Free_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Total_Charge_Order_Count))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;전일 기준 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;취소금액이 반영된 순매출입니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3.&nbsp;&nbsp;무는 무료 주문건수, 유는 유료 주문건수를 표시합니다.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 매출통계 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script>
+    $().ready(function () {
+        $('.btn-init').click(function (e) {
+            $('#year').val('');
+            $('#month').val('');
+            $('#frmSearch').submit();
+        });
+
+        initChart();
+    });
+
+    function initChart() {
+        var canvas = document.getElementById('chart');
+        var ctx = canvas.getContext('2d');
+        var options = {
+            responsive: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        fontSize: 14,
+                    }
+                }]
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function (tooltipItem, data) {
+
+                        var label = data.datasets[tooltipItem.datasetIndex].label;
+                        var value = tooltipItem.yLabel;
+
+                        if (!value) {
+                            value = '0';
+                        } else {
+                            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        }
+
+                        return label + ' : ' + value;
+                    }
+                },
+            }
+        };
+
+        var labels = new Array();
+        var values1 = new Array();
+        var values2 = new Array();
+        var values3 = new Array();
+        var values4 = new Array();
+        var values5 = new Array();
+
+        for (var item = $('.chart-lable').length - 1; item >= 0; item--) {
+            labels.push($($('.chart-lable')[item]).data('chartlabel') + '일');
+        }
+
+        for (var item = $('.chart-barunn-value').length - 1; item >= 0; item--) {
+            values1.push($($('.chart-barunn-value')[item]).data('chartval'));
+        }
+
+        for (var item = $('.chart-bhands-value').length - 1; item >= 0; item--) {
+            values2.push($($('.chart-bhands-value')[item]).data('chartval'));
+        }
+
+        for (var item = $('.chart-thecard-value').length - 1; item >= 0; item--) {
+            values3.push($($('.chart-thecard-value')[item]).data('chartval'));
+        }
+
+        for (var item = $('.chart-premier-value').length - 1; item >= 0; item--) {
+            values4.push($($('.chart-premier-value')[item]).data('chartval'));
+        }
+
+        for (var item = $('.chart-total-value').length - 1; item >= 0; item--) {
+            values5.push($($('.chart-total-value')[item]).data('chartval'));
+        }
+
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '바른손카드(원)',
+                    data: values1,
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    borderColor: 'rgba(0,128,255,1)',
+                    pointBackgroundColor: 'rgba(0,128,255,1)',
+                    lineTension: 0,
+                    borderWidth: 1
+                },
+                {
+                    label: '비핸즈카드(원)',
+                    data: values2,
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    borderColor: 'rgba(255,51,255,1)',
+                    pointBackgroundColor: 'rgba(255,51,255,1)',
+                    lineTension: 0,
+                    borderWidth: 1
+                },
+                {
+                    label: '더카드(원)',
+                    data: values3,
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    borderColor: 'rgba(153,153,0,1)',
+                    pointBackgroundColor: 'rgba(153,153,0,1)',
+                    lineTension: 0,
+                    borderWidth: 1
+                },
+                {
+                    label: '프리미어페이퍼(원)',
+                    data: values4,
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    borderColor: 'rgba(150,150,150,1)',
+                    pointBackgroundColor: 'rgba(150,150,150,1)',
+                    lineTension: 0,
+                    borderWidth: 1
+                },
+                {
+                    label: '순매출(원)',
+                    data: values5,
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    borderColor: 'rgba(0,153,0,1)',
+                    pointBackgroundColor: 'rgba(30,130,0,1)',
+                    lineTension: 0,
+                    borderWidth: 3
+                }
+                ]
+            },
+            options: options
+        });
+    }
+    </script>
+}

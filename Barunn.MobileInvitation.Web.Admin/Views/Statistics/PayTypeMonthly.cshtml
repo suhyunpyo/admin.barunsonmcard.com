@@ -1,0 +1,125 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model StatisticsViewModel<TB_Payment_Status_Month>
+@{
+    Layout = "_Layout";
+}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">결제수단 / 월별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form id="frmSearch" method="get" asp-action="PayTypeMonthly">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">기간</td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="year" id="year" title="년" tabindex="0" style="width:10%; display: inline;"
+                                            asp-for="SelectedYear" asp-items="Model.Years">
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit">검색</button>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm btn-init" type="button">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="PayTypeMonthlyExcel" asp-route-year="@Model.SelectedYear"
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 통계 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>일자</th>
+                            <th>카드결제</th>
+                            <th>계좌이체</th>
+                            <th>가상계좌(무통장)</th>
+                            <th>기타</th>
+                            <th>합계</th>
+                            <th>취소/환불</th>
+                            <th>순매출</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sd in Model.Items)
+                        {
+                            DateTime dt = DateTime.ParseExact(sd.Date, "yyyyMM", null);
+                            string strDt = dt.ToString("yyyy-MM");
+
+                            <tr>
+                                <td class="tdCenter">@(strDt)</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Card_Payment_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Account_Transfer_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Virtual_Account_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Etc_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Total_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Cancel_Refund_Price))</td>
+                                <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", sd.Profit_Price))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="tdCenter">합계</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Card_Payment_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Account_Transfer_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Virtual_Account_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Etc_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Total_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Cancel_Refund_Price))</td>
+                            <td class="tdRight" style="font-weight:bold;">@(String.Format("{0:N0}", Model.Total.Profit_Price))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;전일 기준 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;순매출은 합계-취소/환불 금액입니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3.&nbsp;&nbsp;기타는 고객이 사이트 내에서 결제하지 않고, 법인통장으로 직접 입금하는 경우입니다.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 통계 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script>
+    $().ready(function () {
+        $('.btn-init').click(function (e) {
+            $('#year').val('');
+            $('#frmSearch').submit();
+        });
+    });
+
+    </script>
+}

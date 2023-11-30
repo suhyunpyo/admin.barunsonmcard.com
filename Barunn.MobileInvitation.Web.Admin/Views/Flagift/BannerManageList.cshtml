@@ -1,0 +1,146 @@
+﻿@model FlaBannerManageSearchViewModel
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">화환배너 관리</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="get" asp-action="BannerManageList" id="frmSearch">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">검색</td>
+                                <td><input type="text" asp-for="Keyword" class="form-control bg-light border-0 small" placeholder="'그룹명' 또는 '예식장 연관 키워드'를 입력하세요" style="display:inline;"></td>
+                            </tr>
+                            <tr>
+                                <td>배너 상태</td>
+                                <td>
+                                    @foreach (var item in Model.Alloweds)
+                                    {
+                                        <input type="radio" asp-for="Allowed" value="@item.Value" />
+                                        <label>@item.Text</label>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="BannerManageList" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                    <input type="hidden" asp-for="PageSize" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="BannerManageEdit" asp-route-Id="0" class="d-none d-sm-inline-block btn btn-sm btn-secondary2  shadow-sm">등록</a>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>키워드 그룹명</th>
+                            <th>예식장 연관 키워드</th>
+                            <th>노출</th>
+                            <th>등록일</th>
+                            <th>수정일</th>
+                            <th>작성자</th>
+                            <th>삭제</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="13" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            <tr>
+                                <td class="tdCenter">
+                                    @currentno
+                                </td>
+                                <td class="tdCenter" style="text-decoration: underline;">
+                                    <a asp-action="BannerManageEdit" asp-route-Id="@item.Id">@item.GroupName</a>
+                                </td>
+                                <td class="tdLeft" style="word-wrap:anywhere;">
+                                    @item.Keywords
+                                </td>
+                                <td class="tdCenter">@item.Allowed</td>
+                                <td class="tdCenter">
+                                    @item.RegistDateTime.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td class="tdCenter">
+                                    @item.UpdateDateTime.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td class="tdCenter">
+                                    @item.RegistUserName
+                                </td>
+                                <td class="tdCenter">
+                                    <a asp-action="BannerManageDelete" asp-route-Id="@item.Id" class="text-decoration-underline btnDelete">삭제</a>
+                                </td>
+                                
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            $(".btnDelete").on("click", function (e) {
+                e.preventDefault();
+                var result = confirm('지금 삭제하시겠습니까?');
+
+                if (result) {
+                    $.ajax({
+                        url: $(this).attr('href'),
+                        method: 'DELETE'
+                    }).done(function (data, textStatus, jqXHR) {
+                        if (data['status'] == true) {
+                            //페이지 다시 읽기
+                            location.reload();
+                        } else {
+                            var errors = data['message'];
+                            alert(errors);
+                        }
+                    });
+                }
+            });
+        });
+        
+    </script>
+}

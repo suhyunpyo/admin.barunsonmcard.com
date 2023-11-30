@@ -1,0 +1,120 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model List<KakaoRemitTaxDataModel>
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">설정 / 수수료</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form asp-action="SaveTax" name="frmTax" method="post" onsubmit="return checkTax(this);">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:200px;">축의금 송금 수수료</td>
+                                <td>
+                                    <input type="number" name="Tax" class="form-control form-control-sm" placeholder="콤마( , )없이 숫자만 입력하세요!" value="">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+            </h6>
+        </div>
+        <!-- 수수료 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" style="text-align:center;" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>이름</th>
+                            <th>ID</th>
+                            <th>내용</th>
+                            <th>변경일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int Total = Model.Count;
+                        }
+
+                        @foreach (var tax in Model)
+                        {
+                            <tr>
+                                <td>@(Total--)</td>
+                                <td>@(tax.RegistUserName)</td>
+                                <td>@(tax.RegistUserID)</td>
+                                <td>@(tax.PreviousTax?.ToString("#,##0") + " -> " + @tax.Tax.ToString("#,##0")) </td>
+                                <td>@(tax.RegistDateTime?.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1. 축의금 송금 수수료는 모바일초대장 생성 시점의 수수료로 반영됩니다.</li>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;예) 모바일초대장 생성 시점의 수수료가 1,000원 일 경우, 중간에 수수료를 1,500원으로 변경하여도 생성시점 기준(1,000원)으로 적용됩니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2. 축의금 송금 수수료 변경 시 영향 범위는 고객 송금 수수료, 정산, 통계입니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3. 축의금 송금 수수료를 변경 하여도, 기존 데이터는 영향이 없으며 반영되지 않습니다.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 수수료 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        function checkTax(f) {
+            var regex = /^[0-9]*$/g;
+            var tax = f.Tax.value;
+            var check = false;
+
+            if (tax.length > 0) {
+                if (regex.test(tax)) {
+                    if (confirm('수수료를 변경하시겠습니까?')) {
+                        check = true;
+                    }
+                }
+                else {
+                    alert('숫자만 입력해주세요.');
+                }
+            }
+            else {
+                alert('수수료를 입력해 주세요.');
+                f.Tax.focus();
+                check = false;
+            }
+
+            return check;
+        }
+    </script>
+}

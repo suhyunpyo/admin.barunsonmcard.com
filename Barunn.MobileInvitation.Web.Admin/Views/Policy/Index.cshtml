@@ -1,0 +1,134 @@
+﻿@model PolicySearchViewModel
+@{
+    Layout = "_Layout";
+}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">약관관리</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="get" asp-action="Index" asp-controller="Policy" id="frmSearch">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">검색</td>
+                                <td><input type="text" asp-for="Keyword" class="form-control form-control-sm" placeholder="제목 또는 내용을 입력하세요"></td>
+                            </tr>                                                       
+                            <tr>
+                                <td>섹션</td>
+                                <td>
+                                    @foreach (var item in Model.PolicyDivs)
+                                    {
+                                        <input type="radio" asp-for="PolicyDiv" value="@item.Value" class="ml-2" style="margin-left: 10px;" />
+
+                                        <label class="ml-1">@item.Text</label>
+                                    }
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Index" asp-controller="Policy" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="Add" asp-controller="Policy" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">
+                    등록
+                </a>
+            </h6>
+        </div>
+
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered " width="100%" cellspacing="0" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>섹션</th>                            
+                            <th>제목</th>
+                            <th>시작일</th>
+                            <th>종료일</th>
+                            <th>작성자</th>
+                            <th>작성일</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="8" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {                            
+                            <tr>
+                                <td>@currentno</td>
+                                <td>@(item.PolicyDiv=="P"?"개인정보 처리방침":"이용약관")</td>
+                                <td style="text-decoration: underline;" class="tdLeft">
+                                    <a asp-action="Edit" asp-controller="Policy" asp-route-id="@item.Seq">@item.Title</a>
+                                </td>                                
+                                <td>@item.StartDate</td>
+                                <td>@item.EndDate</td>
+                                <td>@item.AdminName</td>
+                                <td>@item.RegDate?.ToString("yyyy-MM-dd  HH:mm")</td>                                
+                                <td>
+                                    <a asp-action="Delete" asp-controller="Policy" asp-route-id="@item.Seq" class="text-decoration-underline btnDelete">삭제</a>
+                                </td>
+                            </tr>
+                            currentno--;
+                        }
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">      
+
+        $(".btnDelete").on("click", function (e) {
+            e.preventDefault();
+            var result = confirm('정말 삭제하시겠습니까?');
+
+            if (result) {
+                $.ajax({
+                    url: $(this).attr('href'),
+                    method: 'DELETE'
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data['status'] == true) {
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+                });
+            }
+        });
+
+    </script>
+}

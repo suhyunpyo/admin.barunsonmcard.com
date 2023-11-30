@@ -1,0 +1,80 @@
+﻿@using Barunn.MobileInvitation.Web.Admin.Services;
+@using Barunn.MobileInvitation.Common.Models;
+@using System.Security.Claims;
+@{
+    var userRole = AdminRole.None;
+    if (User.Identity.IsAuthenticated)
+    {
+        var claimsIdentity = User.Identity as ClaimsIdentity;
+        var roleName = claimsIdentity?.FindFirst(ClaimTypes.Role)?.Value;
+        if (roleName != null)
+        {
+            Enum.TryParse(roleName, true, out userRole);
+        }
+    }
+
+    var menus = NavMenuService.Menus;
+    List<NavMenuModel> selectedList = null;
+    //상단 메뉴 목록
+    var topNavMenus = menus.MenuItems.Where(m => m.ParentId == 0).OrderBy(m => m.Id).ToList();
+
+    var selectedMenu = (NavMenuModel)ViewData["SelectedMenu"];
+    if (selectedMenu != null)
+    {
+        selectedList = menus.GetParentMenus(selectedMenu).ToList();
+        topNavMenus.Single(m => m.Id == selectedList.First().Id).IsSelected = true;
+    }
+}
+<div id="wrapper">
+    <nav class="navbar navbar-expand navbar-light topbar static-top shadow" style="width:100%;display:flex;">
+        <div class="sidebar-brand-text mx-3" style="height: 70px; background: #696969; width: 225px; line-height: 62px; margin: 0 !important; text-align: center; padding: 0 39px 0 31px; ">
+            <a href="/"><img src="/img/barunsonmacard.png" style="height:25px;" /></a>
+        </div>
+        <ul class="navbar-nav_top">
+            @foreach (var menu in topNavMenus.Where(m => m.MenuPosition == 1 && m.HasRole(userRole)))
+            {
+                var css = "";
+                if (menu.IsSelected)
+                    css = "background: rgb(132, 160, 255); width: 105px; height: 88px;";
+
+                <li style="@css"><a asp-controller="@menu.Controller" asp-action="@menu.Action">@menu.Title</a><span class="gnb_line"></span></li>
+            }
+        </ul>
+        <!-- Topbar Navbar -->
+        <ul class="navbar-nav ml-auto;">
+            @foreach (var menu in topNavMenus.Where(m => m.MenuPosition == 2 && m.HasRole(userRole)))
+            {
+                var css = "";
+                if (menu.IsSelected)
+                    css = "background: rgb(132, 160, 255);";
+
+                <li style="width: 105px;padding-top:24px; text-align: center; @css">
+                    <a asp-controller="@menu.Controller" asp-action="@menu.Action">@menu.Title</a>
+                    <span class="gnb_line"></span>
+                </li>
+            }
+            <li class="nav-item dropdown no-arrow mr-4">
+                <partial name="_LoginPartial" />
+            </li>
+        </ul>
+    </nav>
+</div>
+<div class="top-rocation">
+    <div>
+        <a href="/">HOME</a>
+        @if (selectedList != null)
+        {
+            foreach (var item in selectedList.Where(m => m.IsDisplay))
+            {
+                if (item.Controller != null && item.Action != null)
+                {
+                    <a asp-action="@item.Action" asp-controller="@item.Controller"> > @item.Title</a>
+                }
+                else
+                {
+                    <a href="#" onclick="return false;"> > @item.Title</a>
+                }
+            }
+        }
+    </div>
+</div>

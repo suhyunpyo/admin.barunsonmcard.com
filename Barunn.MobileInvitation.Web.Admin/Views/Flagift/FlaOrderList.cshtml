@@ -1,0 +1,260 @@
+﻿@model FlaOrderSearchViewModel<FlaOrderDataModel>
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar {
+        width: 253px !important;
+    }
+
+    #content {
+        width: 100% !important;
+    }
+</style>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">주문관리 - 건별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="get" asp-action="FlaOrderList" id="frmSearch">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">검색</td>
+                                <td colspan="6"><input type="text" asp-for="Keyword" class="form-control bg-light border-0 small" placeholder="이름 또는 ID 또는 주문번호를 입력하세요" style="width:44%; display:inline;"></td>
+                            </tr>
+                            <tr>
+                                <td>기 간</td>
+                                <td colspan="6">
+                                    <select asp-for="Period" asp-items="Model.Periods" style="width: 15%;display: inherit" class="form-control form-control-sm">
+                                    </select>
+
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 0 ? "active" : "")" data-term="0">오늘</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-group input-daterange" style="display:inline;">
+                                        <input type="text" asp-for="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" id="startDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i> -
+                                        <input type="text" asp-for="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" id="endDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="FlaOrderList" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                    <input type="hidden" asp-for="PageSize" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="FlaOrderListExcel" asp-all-route-data="@Model.RouteData" class="d-none d-sm-inline-block btn btn-sm btn-secondary2  shadow-sm">엑셀 다운로드</a>
+                <select name="Paging" asp-for="PageSize" asp-items="Model.PageSizes" style="width:10%;display: inline;" class="form-control form-control-sm">
+                </select>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>주문번호</th>
+                            <th>이름</th>
+                            <th>아이디</th>
+                            <th>구분</th>
+                            <th>주문자</th>
+                            <th>화환주문번호</th>
+                            <th>상품</th>
+                            <th>결제금액</th>
+                            <th>배송상태</th>
+                            <th>화환주문일시</th>
+                            <th>결제일</th>
+                            <th>예식일시</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="13" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            var colBarunsonmCardUrl = new Uri(Model.BarunsonmCardUrl, item.Invitation_Url);
+                            var useridlink = item.MemberType == "U" ? item.UserId : item.UserEmail;
+
+                            <tr>
+                                <td class="tdCenter">
+                                    @currentno
+                                </td>
+                                <td class="tdCenter" style="text-decoration: underline;">
+                                    <a href="@colBarunsonmCardUrl" target="_blank"> @item.OrderCode</a>
+                                </td>
+                                <td class="tdLeft" style="text-decoration: underline;">
+                                    <a asp-action="Detail" asp-controller="Member" asp-route-memberType="@item.MemberType" asp-route-id="@useridlink"
+                                       asp-route-returnUrl="@Model.ReturnUrl">@item.UserName</a>
+                                </td>
+                                <td class="tdLeft">@item.UserId</td>
+                                <td class="tdCenter">
+                                    @item.OrderTitle
+                                </td>
+                                <td class="tdCenter">
+                                    @item.OrderName
+                                </td>
+                                <td class="tdCenter">
+                                    @item.POrderCode
+                                </td>
+                                <td class="tdLeft">
+                                    @item.ProductName
+                                </td>
+                                <td class="tdRight">
+                                    @item.SalePrice.ToString("#,###")
+                                </td>
+                                <td class="tdCenter">
+                                    @item.OrderStateName
+                                </td>
+                                <td class="tdCenter">
+                                    @item.OrderDate.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td class="tdCenter">
+                                    @item.PPaymentDate?.ToString("yyyy-MM-dd")
+                                </td>
+                                <td class="tdCenter"> @item.WeddingDate?.ToString("yyyy-MM-dd HH:mm")</td>
+
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;10분 주기로 데이터를 업데이트하여 반영합니다.</li>
+
+                </ul>
+                
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+
+            var $from = $('#startDate');
+            var $to = $('#endDate');
+
+            $from.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+            });
+
+            $to.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+            });
+        });
+        $(".date-term").click(function (e) {
+            $(".date-term").removeClass('active');
+            $(this).addClass('active');
+
+            var t = $(this).data('term');
+            var st = $('#startDate');
+            var ed = $('#endDate');
+            var now = new Date();
+            var tmpDt = new Date();
+            ed.val(toStringByFormatting(now, '-'));
+            if (t == 0) {
+                st.val(toStringByFormatting(now, '-'));
+            }
+            else if (t == 1) {
+                tmpDt.setDate(tmpDt.getDate() - 7);
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 2) {
+                tmpDt.setMonth(tmpDt.getMonth() - 1);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 3) {
+                tmpDt.setMonth(tmpDt.getMonth() - 3);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+
+            $('#termType').val(t)
+        });
+
+        $("[name=Paging]").change(function () {
+
+            $("#PageSize").val($("[name=Paging]").val());
+            $("#frmSearch").submit();
+            return false;
+
+        });
+
+
+    </script>
+}

@@ -1,0 +1,443 @@
+﻿@model AdminOrderMemberDetail
+@{
+    Layout = "_Layout";
+    var index = 0;
+
+    var orderid = Model.OrderList.FirstOrDefault()?.Order_ID;
+    var nowurl = "https://" + Context.Request.Host.ToString() + Context.Request.Path.ToString() + Context.Request.QueryString.ToString();
+}
+<style type="text/css">
+    .table-bordered td {
+        /*text-align: center;*/
+    }
+
+    .table th, .table td {
+        padding: 0.67rem
+    }
+</style>
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                회원상세
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body" style="margin-top:30px;">
+            <div class="table-responsive">
+
+                <!-- 기본정보 -->
+                <h6>기본정보</h6>
+                <table class="table table-bordered" name="Tbcontent" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>이름</th>
+                            <th>ID</th>
+                            <th>연락처</th>
+                            <th>이메일</th>
+                            <th>예식일</th>
+                            <th>회원가입일</th>
+                            <th>로그인</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="tdCenter">@Model.User_Name</td>
+                            <td class="tdCenter">@Model.User_Id</td>
+                            <td class="tdCenter">@Model.User_Hp</td>
+                            <td class="tdCenter">@Model.User_Email</td>
+                            <td class="input-group tdCenter">
+                                <input type="text" value=" @Model.Wedding_Date" id="WeddingDate" class="form-control bg-light border-0 small" style="font-size: 1em; display: inline; text-align: center" readonly="readonly" />
+                            </td>
+                            <td class="tdCenter">@Model.Regist_Datetime?.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td class="tdCenter">
+                                <a asp-action="UserLogin" asp-controller="Member" asp-route-id="@Model.LastOrderID" target="_blank" style="text-decoration: underline;">[로그인]</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- 주문정보 -->
+                <h6 class="mt-5">주문정보</h6>
+                <table class="table table-bordered" name="Tbcontent" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>주문번호</th>
+                            <th>제품코드</th>
+                            <th>주문금액</th>
+                            <th>쿠폰사용</th>
+                            <th>결제금액</th>
+                            <th>결제수단</th>
+                            <th>주문일자</th>
+                            <th>결제일자</th>
+                            <th>결제취소</th>
+                            <th>수정</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.OrderList.Count == 0)
+                        {
+                            <tr class="tdCenter"><td colspan="11">리스트가 없습니다</td></tr>
+                        }
+                        else
+                        {
+                            index = Model.OrderList.Count;
+                            foreach (var item in Model.OrderList)
+                            {
+                                var colBarunsonmCardUrl = new Uri(Model.BarunsonmCardUrl, item.Invitation_Url);
+
+                                string colPayPrice = item.Payment_Price?.ToString("#,###");
+                                string colOrderDate = item.Order_DateTime?.ToString("yyyy-MM-dd HH:mm");
+
+                                if (item.Payment_Method_Code == "PMC02") //무통장
+                                {
+                                    if (item.Payment_Status_Code == "PSC04" || item.Payment_Status_Code == "PSC05")
+                                    {
+                                        colPayPrice = item.Payment_Status_Name;
+                                        colOrderDate = "";
+                                    }
+                                }
+
+                                string colCancelDate = item.Cancel_DateTime?.ToString("yyyy-MM-dd HH:mm");
+                                if (item.RefundYn)
+                                    colCancelDate = "환불접수";
+
+                            <tr>
+                                <td class="tdCenter">@index</td> @*No*@
+                                <td class="tdCenter" style="text-decoration: underline;">
+                                    @* 주문번호 *@
+                                    <a href="@colBarunsonmCardUrl" target="_blank"> @item.Order_Code</a> @* 새창 *@
+                                </td>
+                                <td class="tdCenter" style="text-decoration: underline;">
+                                    @* 제품코드 *@
+                                    <a asp-action="Edit" asp-controller="ProductRegist" asp-route-id="@item.Product_ID" target="_blank">@item.Product_Code</a>
+                                </td>
+                                <td class="tdRight">@item.Order_Price.ToString("#,###")</td>
+                                <td class="tdRight">@item.Coupon_Use_Price?.ToString("#,###")</td>
+                                <td class="tdRight">@colPayPrice</td>
+                                <td class="tdCenter">@item.Payment_Method_Name</td>
+                                <td class="tdCenter">@item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm")</td> @*주문일자*@
+                                <td class="tdCenter">@colOrderDate</td>  @*결재일자*@
+                                <td class="tdCenter">@colCancelDate</td>  @*결재취소*@
+                                <td style="text-decoration: underline;">
+                                    <a asp-action="index" asp-controller="Invitation" asp-route-id="@item.Order_ID" target="_blank">[수정]</a>  @* 새창 *@
+                                </td>
+                            </tr>
+                                index--;
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                <!-- 쿠폰 -->
+                <h6 class="mt-5">쿠폰</h6>
+                <table class="table table-bordered" name="Tbcontent" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>쿠폰명</th>
+                            <th>쿠폰코드</th>
+                            <th>사용</th>
+                            <th>쿠폰금액</th>
+                            <th>사용일</th>
+                            <th>발급일</th>
+                            <th>유효기간</th>
+                            <th>쿠폰회수</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.CouponList.Count == 0)
+                        {
+                            <tr class="tdCenter"><td colspan="9">리스트가 없습니다</td></tr>
+                        }
+                        else
+                        {
+                            index = Model.CouponList.Count;
+                            foreach (var item in Model.CouponList)
+                            {
+                                string colDiscount_Price = "";
+                                if (item.Discount_Method_Code == "DMC01") //금액
+                                {
+                                    colDiscount_Price = item.Discount_Price?.ToString("#,###");
+                                }
+                                else if (item.Discount_Method_Code == "DMC02") //%
+                                {
+                                    colDiscount_Price = item.Discount_Rate?.ToString("###.##\\%");
+                                }
+                                else if (item.Discount_Method_Code == "DMC03") //%
+                                {
+                                    colDiscount_Price = "전액";
+                                }
+                                string colExpiration_Date = string.IsNullOrEmpty(item.Expiration_Date) ? "무제한" : item.Expiration_Date;
+
+                                <tr>
+                                    <td class="tdCenter">@index</td>
+                                    <td class="tdLeft">@item.Coupon_Name</td>
+                                    <td class="tdRight">@item.Coupon_Id</td>
+                                    <td class="tdCenter">
+                                        @(item.Use_Yn == "Y" ? "사용" : "미사용")
+                                    </td>
+                                    <td class="tdRight">@colDiscount_Price</td>
+                                    <td class="tdCenter">@item.Use_DateTime?.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td class="tdCenter">@item.Regist_Datetime?.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td class="tdCenter">@colExpiration_Date</td>
+                                    @if (item.Retrieve_Datetime.HasValue)
+                                    {
+                                        <td class="tdCenter">
+                                            @item.Retrieve_Datetime?.ToString("yyyy-MM-dd HH:mm")
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        if (item.Use_DateTime.HasValue) //사용
+                                        {
+                                            <td class="tdCenter"></td>
+                                        }
+                                        else
+                                        {
+                                            <td class="tdCenter" style="text-decoration: underline;">
+                                                <a class="couponRetrieve" asp-action="Retrieve" asp-controller="Coupon" asp-route-id="@item.Coupon_Publish_Id" style="text-decoration:underline;">
+                                                    [회수]
+                                                </a>
+                                            </td>
+                                        }
+                                    }
+                                </tr>
+                                index--;
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                @*< !--결제 / 환불 정보-- >*@
+                <h6 class="mt-5">결제/환불 정보</h6>
+                <table class="table table-bordered" name="Tbcontent" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>주문번호</th>
+                            <th>결제금액</th>
+                            <th>결제수단</th>
+                            <th>결제상세</th>
+                            <th>결제일</th>
+                            <th>환불금액</th>
+                            <th>환불상태</th>
+                            <th>환불</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.PayAndRefundInfoList.Count == 0)
+                        {
+                            <tr class="tdCenter"><td colspan="9">리스트가 없습니다</td></tr>
+                        }
+                        else
+                        {
+                            index = Model.PayAndRefundInfoList.Count;
+                            foreach (var item in Model.PayAndRefundInfoList)
+                            {
+                                var colBarunsonmCardUrl = new Uri(Model.BarunsonmCardUrl, item.Invitation_Url);
+                                string colPayment_Price = item.Payment_Price?.ToString("#,###");
+                                string colPayment_Datetime = item.Payment_Datetime?.ToString("yyyy-MM-dd HH:mm");
+
+                                if (item.Payment_Method_Code == "PMC02" && item.Payment_Status_Code == "PSC04") //무통장, 입금대기
+                                {
+                                    colPayment_Price = item.Payment_Status_Name;
+                                    colPayment_Datetime = "";
+                                }
+                                //환불날짜
+                                string colRefund_Datetime = item.Refund_Datetime?.ToString("yyyy-MM-dd HH:mm");
+                                //무통장, //가상계좌 취소,//!=환불완료
+                                if (item.Payment_Method_Code == "PMC02" && item.Refund_Type_Code == "RTC03" && item.Refund_Status_Code != "RSC02")
+                                {
+                                    colRefund_Datetime = "환불접수";
+                                }
+
+                                //환불가능 여부, 결제상태=결제완료 & 환불상태 <> 환불완료
+                                //무통장입금(가상계좌) || //계좌이체
+                                var refundYn = (item.Payment_Status_Code == "PSC02") || (item.Payment_Status_Code == "PSC03");
+                                //쿠폰 전액 결제 여부
+                                var changeCouponYn = (item.Payment_Method_Code == "PMC02" && item.Payment_Status_Code == "PSC04"); //무통장, 입금대기
+
+                                <tr id="@item.Order_Id">
+                                    <td class="tdCenter">@index</td>
+                                    <td class="tdCenter" style="text-decoration: underline;">
+                                        <a href="@colBarunsonmCardUrl" target="_blank">@item.Order_Code</a>
+                                    </td>
+                                    <td class="tdRight">@colPayment_Price</td>
+                                    <td class="tdCenter">@item.Payment_Method_Name</td>
+                                    <td>@item.Finance_Name</td>
+                                    <td class="tdCenter">@colPayment_Datetime</td>
+                                    <td class="tdRight">@item.Refund_Price?.ToString("#,###")</td>
+                                    <td class="tdCenter">@colRefund_Datetime</td>
+                                    <td style="text-decoration: underline;" class="tdCenter">
+                                    @if (refundYn)
+                                    {
+                                        <a class="refundgo" asp-action="RefundInfo" asp-controller="Member" asp-route-id="@item.Order_Id" name="RefundGo">
+                                            [환불]
+                                        </a>
+                                    }
+                                    @if (changeCouponYn)
+                                    {
+                                        <a class="paymethodgo" asp-action="PaymethodChange" asp-controller="Member" asp-route-id="@item.Order_Id" name="PaymethodChange">
+                                            [쿠폰전액결제로 변경]
+                                        </a>
+                                    }
+                                    </td>
+                                </tr>
+                                index--;
+                            }
+                        }
+                        </tbody>
+                </table>
+
+                <!-- 환불팝업-->
+                <div class="modal fade" id="RefundPop" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document" style="max-width: 580px">
+
+                    </div>
+                </div>
+
+                <!-- 고객상담 -->
+                <h6 class="mt-5">고객상담</h6>
+                <table class="table table-bordered" name="Tbcontent" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th style="min-width: 100px;">고객문의</th>
+                            <th>답변</th>
+                            <th>등록일</th>
+                            <th>답변일</th>
+                            <th>답변자</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.UserQnAList.Count == 0)
+                        {
+                            <tr class="tdCenter"><td colspan="6">리스트가 없습니다</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model.UserQnAList)
+                            {
+                                <tr>
+                                    <td class="tdCenter"></td>
+                                    <td class="tbLeft">@item.Title</td>
+                                    <td style="white-space: pre-wrap; width: 100%; float: left; word-break: break-all; word-wrap: break-word;">@item.Content</td>
+                                    <td class="tdCenter">@item.Regist_Datetime.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td class="tdCenter">@item.Answer_Datetime?.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td class="tdCenter">@item.Answer_Id</td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                </table>
+
+                <!-- 관리자 메모 -->
+                <h6 class="mt-5">관리자 메모</h6>
+                <div class="was-validated">
+                    <form asp-action="MemoSave" asp-controller="Member" method="post" id="MemoFrm">
+                        <textarea id="Content" name="Content" class="form-control" style="border-radius:0;" placeholder="메모를 입력 후 저장버튼을 누르세요."></textarea>
+                        <input type="hidden" value="@nowurl" name="NowUrl" />
+                        <input type="hidden" value="@orderid" name="Order_Id" />
+                    </form>
+                    <div class="text-center mt-5">
+                        <a id="MemoSave" href="#none" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">저장</a>
+                        <a href="@ViewBag.returnUrl" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">취소</a>
+                    </div>
+
+                    <table class="table table-bordered mt-2" width="100%" cellspacing="0">
+                        <tbody>
+                            @foreach (var item in Model.AdminMemoList)
+                            {
+                                <tr>
+                                    <td>@item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@item.Regist_User_Name</td>
+                                    <td style="white-space:pre;">@item.Content</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <!-- 전체현황 테이블 -->
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+           
+        });
+        //쿠폰회수
+        $(document).on("click", 'a.couponRetrieve', function (e) {
+            e.preventDefault();
+            var result = confirm("발행된 쿠폰을 회수 하시겠습니까?");
+            if (result) {
+                //회수처리
+                $.ajax({
+                    url: $(this).attr('href'),
+                    method: 'GET'
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data['status'] == true) {
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+
+                });
+            }
+        });
+        //환불
+        $(document).on("click", 'a.refundgo', function (e) {
+            e.preventDefault();
+            
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                $("#RefundPop").html(data);
+                $("#RefundPop").modal("show");
+            });
+            
+        });
+        //쿠폰 전액 결제
+        $(document).on("click", 'a.paymethodgo', function (e) {
+            e.preventDefault();
+            var Confirm_result = confirm('쿠폰 전액결제 완료상태로 변경하시겠습니까?\n전액쿠폰발급내역이 존재할 경우에만 변경 가능합니다.');
+            if (Confirm_result) {
+                $.ajax({
+                    url: $(this).attr('href'),
+                    method: 'GET'
+                }).done(function(data, textStatus, jqXHR) {
+                    if (data['status'] == true) {
+                        alert("쿠폰결제가 완료되었습니다.");
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+                });
+            }
+        });
+
+        //Memo save
+        $(document).on("click", '#MemoSave', function (e) {
+            e.preventDefault();
+            if ($("#Content").val() == "") {
+                alert("메모를 입력해주세요");
+                $("#Content").focus();
+                return;
+            }
+            $("#MemoFrm").submit();
+        });
+
+    </script>
+}

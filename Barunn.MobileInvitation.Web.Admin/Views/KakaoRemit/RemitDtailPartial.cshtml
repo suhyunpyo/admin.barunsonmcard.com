@@ -1,0 +1,115 @@
+﻿@model KakaoRemitViewModel<KakaoRemitDataModel>
+@{
+    Layout = null;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">축의금 송금 상세</h5>
+    <button class="close" type="button" aria-label="Close" data-dismiss="modal">
+        <span aria-hidden="true">×</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                @Model.UserName 님
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>구분</th>
+                            <th>예금주</th>
+                            <th>은행</th>
+                            <th>계좌번호</th>
+                            <th>송금자</th>
+                            <th>송금액</th>
+                            <th>수수료</th>
+                            <th>정산완료</th>
+                            <th>미정산</th>
+                            <th>송금일</th>
+                            <th>정산완료일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.DataModel.Count;
+                        }
+                        @if (Model.DataModel.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            <tr>
+                                <td class="tdCenter">
+                                    @currentno
+                                </td>
+                                <td class="tdCenter">
+                                    @item.AccountTypeName
+                                </td>
+                                <td class="tdCenter">
+                                    @item.DepositorName
+                                </td>
+                                <td class="tdCenter">
+                                    @item.BankName
+                                </td>
+                                <td class="tdCenter">
+                                    @item.AccountNumber
+                                </td>
+                                <td class="tdCenter">
+                                    @item.RemitterName
+                                </td>
+                                <td class="tdRight">
+                                    @item.TotalPrice.ToString("#,###")
+                                </td>
+                                <td class="tdRight">
+                                    @item.RemitTax.ToString("#,###")
+                                </td>
+                                <td class="tdRight">
+                                    @item.RemitPrice.ToString("#,###")
+                                </td>
+                                <td class="tdRight">
+                                    @item.RemainPrice.ToString("#,###")
+                                </td>
+                                <td class="tdCenter">
+                                    @if (item.CompleteDateTime.HasValue)
+                                    {
+                                        @item.CompleteDateTime?.ToString("yyyy-MM-dd HH:mm:ss")
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="CheckComplete" asp-controller="KakaoRemit" asp-route-id="@item.RemitID" class="btn btn-sm btn-primary btn-check-complete">송금확인</a>
+                                    }
+                                </td>
+                                <td class="tdCenter">
+                                    @if (item.CalculateDateTime.HasValue)
+                                    {
+                                        @item.CalculateDateTime?.ToString("yyyy-MM-dd HH:mm:ss")
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="CheckCalculate" asp-controller="KakaoRemit" asp-route-id="@item.RemitID" class="btn btn-sm btn-primary btn-check-calculate">정산</a>
+                                    }
+                                </td>
+                                
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer" style="text-align: center; display: block;">
+    
+</div>

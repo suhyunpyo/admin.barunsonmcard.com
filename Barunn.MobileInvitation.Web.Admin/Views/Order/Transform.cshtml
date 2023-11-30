@@ -1,0 +1,392 @@
+﻿@model OrderSearchViewModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar {
+        width: 253px !important;
+    }
+
+    #content {
+        width: 100% !important;
+    }
+    .table:last-child td:first-child {
+ background:none;
+    }
+
+</style>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">회원으로 전환할 비회원 주문 조회</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="get" asp-action="Transform" asp-controller="Order" id="frmSearch">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">주문번호 검색</td>
+                                <td colspan="6"><input type="text" asp-for="Keyword" class="form-control bg-light border-0 small" placeholder="주문번호를 입력하세요" style="width:44%; display:inline;"></td>
+                            </tr>
+                           @* <tr>
+                                <td>기 간</td>
+                                <td colspan="6">
+                                    <select asp-for="Period" asp-items="Model.Periods" style="width: 10%;display: inherit" class="form-control form-control-sm">
+                                    </select>
+
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 0 ? "active" : "")" data-term="0">오늘</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-group input-daterange" style="display:inline;">
+                                        <input type="text" asp-for="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" id="startDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i> -
+                                        <input type="text" asp-for="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" id="endDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>분 류</td>
+                                <td>
+                                    <input type="checkbox" id="chkProductCategoriesAll" value="ALL" />
+                                    <label for="chkProductCategoriesAll" class="mr-2">전체</label>
+                                    @for (var i = 0; i < Model.ProductCategories.Count(); i++)
+                                    {
+                                        <input type="checkbox" asp-for="@Model.ProductCategories[i].Selected" />
+                                        <label asp-for="@Model.ProductCategories[i].Selected" class="mr-2">@Model.ProductCategories[i].Text</label>
+                                        <input type="hidden" asp-for="@Model.ProductCategories[i].Value" />
+                                        <input type="hidden" asp-for="@Model.ProductCategories[i].Text" />
+                                    }
+                                </td>
+                                <td style="background: #f8f8f8">브랜드</td>
+                                <td>
+                                    <input type="checkbox" id="chkBrandAll" value="ALL" />
+                                    <label for="chkBrandAll" class="mr-2">전체</label>
+                                    @for (var i = 0; i < Model.ProductBarnds.Count; i++)
+                                    {
+                                        <input type="checkbox" asp-for="@Model.ProductBarnds[i].Selected" />
+                                        <label asp-for="@Model.ProductBarnds[i].Selected" class="mr-2">@Model.ProductBarnds[i].Text</label>
+                                        <input type="hidden" asp-for="@Model.ProductBarnds[i].Value" />
+                                        <input type="hidden" asp-for="@Model.ProductBarnds[i].Text" />
+                                    }
+                                </td>
+                                <td style="background: #f8f8f8">중복구매</td>
+                                <td class="tdCenter">
+                                    <input type="checkbox" asp-for="OverlapPurchase" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>회 원</td>
+                                <td colspan="1">
+                                    @foreach (var mgubun in Model.MemberGubuns)
+                                    {
+                                        <input type="radio" asp-for="MemberYn" value="@mgubun.Value" />
+
+                                        <label class="ml-1 mr-2">@mgubun.Text</label>
+                                    }
+                                </td>
+                                <td style="background: #f8f8f8">결제상태</td>
+                                <td colspan="3">
+                                    @foreach (var p in Model.PaymentStatuses)
+                                    {
+                                        <input type="radio" asp-for="PaymentStatus" value="@p.Value" />
+
+                                        <label class="ml-1 mr-2">@p.Text</label>
+                                    }
+                                </td>
+                            </tr>*@
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Transform" asp-controller="Order" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                    <input type="hidden" asp-for="PageSize" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+   @*     <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="IndexExcel" asp-controller="Order" asp-all-route-data="@Model.RouteData" class="d-none d-sm-inline-block btn btn-sm btn-secondary2  shadow-sm">엑셀 다운로드</a>
+                <select name="Paging" asp-for="PageSize" asp-items="Model.PageSizes" style="width:10%;display: inline;" class="form-control form-control-sm">
+                </select>
+            </h6>
+        </div>*@
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                       @*     <th>No</th>*@
+                            <th colspan="2">
+                          전환할 회원아이디</th>
+                       
+
+                          @*  <th>제품 브랜드</th>
+                            <th>청첩장구매</th>*@
+                            <th>이름</th>
+                            @*<th>아이디</th>
+*@
+                        @*    <th>주문</th>
+                            <th>결제</th>*@
+                            <th>주문번호</th>
+                            <th>제품코드</th>
+                            <th>주문금액</th>
+                            <th>쿠폰금액</th>
+                            <th>결제금액</th>
+                            <th>결제수단</th>
+                            <th>주문일</th>
+                            <th>결제상태</th>
+                            <th>예식일</th>
+                         
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="10" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }else
+                        {
+                            @foreach (var item in Model.DataModel)
+                        {
+                            var colBarunsonmCardUrl = new Uri(Model.BarunsonmCardUrl, item.Invitation_Url);
+                            var colPayment_Status = item.Payment_Status_Name;
+                            if (item.Payment_Status_Code == "PSC02")
+                                colPayment_Status = item.Payment_DateTime?.ToString("yyyy-MM-dd HH:mm");
+                            if (item.RefundYn)
+                                colPayment_Status = "환불접수";
+                                
+                            var useridlink = item.Member_Type == "U" ? item.User_Id : item.User_Email;
+                            <tr>
+
+                                    <td><input type="text" class="form-control form-control-sm" placeholder="아이디를 입력하세요"></td>
+                                    <td><button type="button" id="@item.Order_ID" class="btn btn-sm btn-secondary shadow-s uploadImage" style="margin-left: 20px;padding:0.25rem 1.5rem">회원 주문으로 전환</button></td>
+
+                                    @* <td class="tdCenter" id="@item.Order_ID">
+                                    @currentno
+                                </td>*@
+                                @*<td class="tdLeft">@item.Product_Brand_Name</td>
+                            <td class="tdLeft">@item.Sales_Gubun_Name</td>*@
+                                <td class="tdLeft" style="text-decoration: underline;">
+                                    <a asp-action="Detail" asp-controller="Member" asp-route-memberType="@item.Member_Type" asp-route-id="@useridlink"
+                                   asp-route-returnUrl="@Model.ReturnUrl">@item.User_Name</a>
+                                </td>
+                                @*  <td class="tdLeft">@item.User_Id</td>*@
+                                @* <td class="tdCenter">@item.Order_Path</td>
+                            <td class="tdCenter">@item.Payment_Path</td>*@
+                                <td class="tdLeft" style="text-decoration: underline;">
+                                    <a href="@colBarunsonmCardUrl" target="_blank"> @item.Order_Code</a>
+                                    
+                                </td>
+                                <td class="tdCenter" style="text-decoration: underline;">
+                                    <a asp-action="Edit" asp-controller="ProductRegist" asp-route-id="@item.Product_ID" target="_blank">@item.Product_Code</a>
+                                </td>
+                                <td class="tdRight">@item.Order_Price.ToString("#,###")</td>
+                                <td class="tdRight">@item.Coupon_Price?.ToString("#,###")</td>
+                                <td class="tdRight">@item.Payment_Price?.ToString("#,###")</td>
+                                <td class="tdLeft"> @item.Payment_Method_Name</td>
+                                <td class="tdLeft"> @item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="tdCenter">@colPayment_Status</td>
+                                <td class="tdLeft">@item.Wedding_Date</td>
+                               
+                            </tr>
+                            currentno--;
+                        }
+                        }
+                           
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+
+
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+
+@section Scripts
+    {
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+
+            $(".table-responsive:eq(1) button").click(function (e) {
+                  e.preventDefault();
+
+                //alert($(this).attr("id"))
+                //alert($(this).closest("tr").find("input:text").val());
+                //alert($(this).closest("tr").find("td:eq(3) a").text());
+                var UserId = $(this).closest("tr").find("input:text").val();
+                var OrderId = $(this).attr("id");
+
+                if (UserId == "")
+                {
+                    alert("전환할 회원 아이디를 입력해주세요.");
+                    $(this).closest("tr").find("input:text").focus();
+                    return;
+                }
+
+                var ment  = "비회원 주문건 " + $(this).closest("tr").find("td:eq(3) a").text() + "을\n회원 아이디 : " + UserId + "로 전환하시겠습니까?";
+
+                var result = confirm(ment);
+              
+                if(result) {
+
+                      
+                    var dataArray = new Array();
+                    var obj = new Object();
+
+                    obj.UserId = UserId;
+                    obj.OrderId = parseInt(OrderId);
+
+                    dataArray.push(obj);
+           
+                   
+                    $.ajax({
+                        url: "/Order/OrderUpdate",
+                        method: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: JSON.stringify(dataArray)
+                    }).done(function (data, textStatus, jqXHR) {
+                        var errors = data['message'];
+
+                        if (data['status'] == true) {
+                            alert("회원 주문으로 전환되었습니다.");
+                            //페이지 다시 읽기
+                            location.reload();
+                        } else {
+                            var errors = data['message'];
+                            alert(errors);
+                        }
+                    });
+
+                } 
+
+            });
+
+            $("#chkBrandAll").prop("checked", $("input:checkbox[name^=ProductBarnds]").length == $("input:checkbox[name^=ProductBarnds]:checked").length);
+            $("#chkProductCategoriesAll").prop("checked", $("input:checkbox[name^=ProductCategories]").length == $("input:checkbox[name^=ProductCategories]:checked").length);
+
+            var $from = $('#startDate');
+            var $to = $('#endDate');
+
+            $from.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+            });
+
+            $to.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+            });
+        });
+        $(".date-term").click(function (e) {
+            $(".date-term").removeClass('active');
+            $(this).addClass('active');
+
+            var t = $(this).data('term');
+            var st = $('#startDate');
+            var ed = $('#endDate');
+            var now = new Date();
+            var tmpDt = new Date();
+            ed.val(toStringByFormatting(now, '-'));
+            if (t == 0) {
+                st.val(toStringByFormatting(now, '-'));
+            }
+            else if (t == 1) {
+                tmpDt.setDate(tmpDt.getDate() - 7);
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 2) {
+                tmpDt.setMonth(tmpDt.getMonth() - 1);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 3) {
+                tmpDt.setMonth(tmpDt.getMonth() - 3);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+
+            $('#termType').val(t)
+        });
+
+        $("[name=Paging]").change(function () {
+
+            $("#PageSize").val($("[name=Paging]").val());
+            $("#frmSearch").submit();
+            return false;
+
+        });
+
+        // 전체를 클릭하면 나머지 체크박스 전부 체크 처리(브랜드 선택 리스트)
+        $("#chkBrandAll").click(function () {
+            $("[name^=ProductBarnds]").prop("checked", this.checked);
+        });
+        //각 체크박스를 모두 클릭하면 전체체크박스 자동 체크 / 해제
+        $("[name^=ProductBarnds]").click(function () {
+            $("#chkBrandAll").prop("checked", $("input:checkbox[name^=ProductBarnds]").length == $("input:checkbox[name^=ProductBarnds]:checked").length);
+        });
+        // 전체를 클릭하면 나머지 체크박스 전부 체크 처리(브랜드 선택 리스트)
+        $("#chkProductCategoriesAll").click(function () {
+            $("[name^=ProductCategories]").prop("checked", this.checked);
+        });
+        //각 체크박스를 모두 클릭하면 전체체크박스 자동 체크 / 해제
+        $("[name^=ProductCategories]").click(function () {
+            $("#chkProductCategoriesAll").prop("checked", $("input:checkbox[name^=ProductCategories]").length == $("input:checkbox[name^=ProductCategories]:checked").length);
+        });
+    </script>
+}

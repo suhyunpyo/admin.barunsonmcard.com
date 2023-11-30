@@ -1,0 +1,193 @@
+﻿@model StatisticsPurchaseViewModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+</style>
+
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">구매패턴</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="post" asp-action="PurchasePattern">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td>일자</td>
+                                <td>
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-daterange">
+                                        <input type="text" asp-for="StartDate" id="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" title="검색" placeholder="검색시작일" class="form-control border-0 small bg-light">
+                                    </div>
+                                    <div class="input-daterange">
+                                        <input type="text" asp-for="EndDate" id="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" title="검색" placeholder="검색종료일" class="form-control border-0 small bg-light">
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <button type="button" id="btnReset" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="height:55px;">
+            <div class="m-0 text-primary" style="float:left;">
+                회원가입 : @(String.Format("{0:N0}", Model.Item.JoinCount)) 명, 청첩장 구매 : @(String.Format("{0:N0}", Model.Item.OrderUserCount)) 명
+            </div>
+
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th style="width:200px;">구분</th>
+                            <th>건수</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="tdCenter">모초만 구매1</td>
+                            <td class="tdCenter">@(String.Format("{0:N0}", Model.Item.McardOrder1Count))</td>
+                        </tr>
+                        <tr>
+                            <td class="tdCenter">모초만 구매2</td>
+                            <td class="tdCenter">@(String.Format("{0:N0}", Model.Item.McardOrder2Count))</td>
+                        </tr>
+                        <tr>
+                            <td class="tdCenter">청첩장 + 모초1</td>
+                            <td class="tdCenter">@(String.Format("{0:N0}", Model.Item.MultiOrder1Count))</td>
+                        </tr>
+                        <tr>
+                            <td class="tdCenter">청첩장 + 모초2</td>
+                            <td class="tdCenter">@(String.Format("{0:N0}", Model.Item.MultiOrder2Count))</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="tdCenter">합계</td>
+                            <td class="tdCenter">@(String.Format("{0:N0}", Model.Item.McardOrder1Count + Model.Item.McardOrder2Count + Model.Item.MultiOrder1Count + Model.Item.MultiOrder2Count))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;실시간 기준 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;모초만 구매1은 청첩장 구매 없이, 모바일초대장 1개 구매한 건수를 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3.&nbsp;&nbsp;모초만 구매2은 청첩장 구매 없이, 모바일초대장 2개 이상 구매한 건수를 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>4.&nbsp;&nbsp;청첩장+모초1은 청첩장 구매하고, 모바일초대장 1개 구매한 건수를 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>5.&nbsp;&nbsp;청첩장+모초2은 청첩장 구매하고, 모바일초대장 2개 이상 구매한 건수를 표시합니다</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>6.&nbsp;&nbsp;회원가입은 바른패밀리 전체 수치이며, 청첩장 구매는 원주문을 기준으로 표시합니다.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+
+    </div>
+</div>
+@section Scripts
+{
+<script>
+    $().ready(function (e) {
+        $(".date-term").click(function (e) {
+            $(".date-term").removeClass('active');
+            $(this).addClass('active');
+
+            var t = $(this).data('term');
+            var st = $('#startDate');
+            var ed = $('#endDate');
+            var now = new Date();
+            var tmpDt = new Date();
+            ed.val(toStringByFormatting(now, '-'));
+            if (t == 1) {
+                tmpDt.setDate(tmpDt.getDate() - 7);
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 2) {
+                tmpDt.setMonth(tmpDt.getMonth() - 1);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 3) {
+                tmpDt.setMonth(tmpDt.getMonth() - 3);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+
+            $('#termType').val(t)
+        });
+
+        $('#btnReset').click(function (e) {
+            location.href = "/Statistics/PurchasePattern"
+        });
+
+        var fromdt = $("#startDate");
+        var todt = $("#endDate");
+        fromdt.datepicker({
+            showOn: "both", //focus, button, both 중에 선택할 수 있습니다.focus 는 포커스가 오면 달력이 팝업 됩니다.button 은 버튼을 클릭하면 달력이 팝업 됩니다.both는 두 가지 경우 모두에서 팝업 됩니다.
+            todayBtn: "linked",
+            autoclose: true,
+            language: "ko",
+            format: "yyyy-mm-dd"
+        });
+        todt.datepicker({
+            showOn: "both", //focus, button, both 중에 선택할 수 있습니다.focus 는 포커스가 오면 달력이 팝업 됩니다.button 은 버튼을 클릭하면 달력이 팝업 됩니다.both는 두 가지 경우 모두에서 팝업 됩니다.
+            todayBtn: "linked",
+            autoclose: true,
+            language: "ko",
+            format: "yyyy-mm-dd"
+        });
+        fromdt.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            todt.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+        });
+        todt.on('changeDate', function (e) {
+
+            var d = new Date(e.date.valueOf());
+            fromdt.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+        });
+    });
+
+</script>
+}

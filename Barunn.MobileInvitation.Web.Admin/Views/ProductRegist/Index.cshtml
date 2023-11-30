@@ -1,0 +1,380 @@
+﻿@model ProductRegistViewModel
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@{
+    Layout = "_Layout2";
+}
+<link href="~/css/productreg.css" asp-append-version="true" rel="stylesheet" />
+<link href="~/css/template.css" asp-append-version="true" rel="stylesheet" />
+<style>
+    .validation-summary-errors li {
+        font-size: 0.8em;
+        list-style-type: none;
+        display: inline;
+        margin-right: 20px;
+    }
+
+    .temp-model-bg {
+        background-color: rgba(58, 59, 69, 0.15) !important;
+    }
+</style>
+<div class="container-fluid">
+    <form asp-action="Save" method="post" id="frmSave" novalidate>
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <!-- 기본 정보 -->
+        <div class="card shadow mb-4">
+            <!-- Card Header - Accordion -->
+            <a href="#collapseCardExample1" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample1">
+                <h6 class="m-0 font-weight-bold text-primary">기본정보</h6>
+            </a>
+            <div class="collapse show" id="collapseCardExample1">
+                <input type="hidden" asp-for="Product_ID" />
+                <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                    <tbody>
+                        <tr>
+                            <td class="table-td-label">브랜드</td>
+                            <td>
+                                <select asp-for="ProductBarnd" asp-items="Model.ProductBarnds" disabled="@(!Model.isNew)" class="custom-select custom-select-sm form-control form-control-sm selectProdBrand" style="width: 30%"></select>
+                                <input type="hidden" asp-for="ProductBarnd" class="hiddenProdBrand" />
+                                <a id="aGetNewProductCode" asp-action="GetNewProductCode" style="display:none;"></a>
+                                <span asp-validation-for="ProductBarnd" class="text-danger"></span>
+                            </td>
+
+                            <td class="table-td-label">제품코드</td>
+                            <td>
+                                <input type="text" asp-for="Original_Product_Code" class="form-control form-control-sm" placeholder="제품 코드 자동 부여" readonly style="width: 49%; float:left; margin-right: 2%;" />
+                                <input type="text" asp-for="Product_Code" class="form-control form-control-sm" placeholder="프런트 노출용(수정가능)" style="width:49%;" />
+                                <span asp-validation-for="Product_Code" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-label">제품분류</td>
+                            <td>
+
+                                @foreach (var item in Model.ProductCategoryCodes)
+                                {
+                                    <input type="radio" asp-for="ProductCategoryCode" value="@item.Value" disabled="@(!Model.isNew)" class="ml-2" /><label class="ml-1">@item.Text</label>
+                                }
+                                <span asp-validation-for="ProductCategoryCode" class="text-danger"></span>
+
+                                <input type="checkbox" asp-for="Photo_YN" disabled="@(!Model.isNew)" class="ml-2" id="Photo_YN" /><label class="ml-1">포토형</label>
+                                <input type="hidden" asp-for="ProductCategoryCode" />
+                                <input type="hidden" asp-for="Photo_YN" />
+                            </td>
+                            <td class="table-td-label">제품이름</td>
+                            <td>
+                                <input type="text" asp-for="Product_Name" class="form-control form-control-sm" placeholder="제품 이름 입력" />
+                                <span asp-validation-for="Product_Name" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-label">상품설명</td>
+                            <td>
+                                <textarea asp-for="Product_Description" class="form-control form-control-sm" placeholder="상품 설명 입력" rows="4"></textarea>
+                                <span asp-validation-for="Product_Description" class="text-danger"></span>
+                            </td>
+                            <td class="table-td-background">세트카드URL</td>
+                            <td>
+                                <input type="text" asp-for="SetCard_URL" id="" class="form-control form-control-sm" placeholder="세트카드 PC URL 입력" style="width:95%; float:left;">
+                                <input type="checkbox" asp-for="SetCard_Display_YN" style="margin-top: 1.5rem; margin-left: 0.5rem;"><br />
+                                <input type="text" asp-for="SetCard_Mobile_URL" id="" class="form-control form-control-sm" placeholder="세트카드 모바일 URL 입력" style="width:95%;">
+                                <span><span style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;font-size:1rem;">&#8251</span> 체크 박스 클릭 시, 상세페이지에 세트 청첩장 버튼이 표시됩니다</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 판매/진열 -->
+        <div class="card shadow mb-4">
+            <!-- Card Header - Accordion -->
+            <a href="#collapseCardExample2" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample2">
+                <h6 class="m-0 font-weight-bold text-primary">판매/진열</h6>
+            </a>
+            <div class="collapse show" id="collapseCardExample2" style="">
+                <table id="table1" class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                    <tbody>
+                        <tr>
+                            <td class="table-td-label">가격</td>
+                            <td class="table-td-content">
+                                <input type="text" asp-for="Price" class="form-control form-control-sm" placeholder="판매 금액 입력" style="display:inline; width:50%" /> 원
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </td>
+
+                            <td class="table-td-label">진열 상태</td>
+                            <td class="table-td-content">
+                                @foreach (var item in Model.Display_YNs)
+                                {
+                                    <input type="radio" asp-for="Display_YN" value="@item.Value" class="ml-2" /><label class="ml-1">@item.Text</label>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-td-label">카테고리<br />선택</td>
+                            <td class="table-td-content">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:50%">대분류</th>
+                                            <th style="width:50%">중분류</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="background-color:#FFFFFF;">
+                                                <div class="category">
+                                                    <ul id="tc" style="width:100%;">
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="category">
+                                                    <ul id="mc" style="width:100%;">
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                                <div class="dvAdd" style="display:inline-block;">
+                                    <a href="#">+추가</a>
+                                </div>
+                                <table class="table table-label" width="100%" cellspacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="background-color:#FFFFFF;">
+                                                <div class="category">
+                                                    <ul id="sc" style="width:100%;">
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div style="display:none" id="JsonProductCategories">@JsonSerializer.Serialize(Model.ProductCategories)</div>
+                                <select asp-for="SelectedProductCategories" asp-items="Model.CodeProductCategories" multiple style="display:none;"></select>
+                                <br />
+                                <span asp-validation-for="SelectedProductCategories" class="text-danger"></span>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td class="table-td-label">메인진열선택</td>
+                            <td colspan="3" id="mtd">
+                                @for (var i = 0; i < Model.Main_Categories.Count(); i++)
+                                {
+                                    <input type="checkbox" asp-for="@Model.Main_Categories[i].Selected" />
+                                    <label asp-for="@Model.Main_Categories[i].Selected" class="ml-1 mr-2">@Model.Main_Categories[i].Text</label>
+                                    <input type="hidden" asp-for="@Model.Main_Categories[i].Value" />
+                                    <input type="hidden" asp-for="@Model.Main_Categories[i].Text" />
+                                }
+                                <span asp-validation-for="Main_Categories" class="text-danger"></span>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td class="table-td-label">아이콘</td>
+                            <td colspan="3">
+                                <div class="dvIcon">
+                                    <ul class="mainIconList">
+                                        @for (var i = 0; i < Model.Main_Icons.Count(); i++)
+                                        {
+                                            <li class="mainIconItem">
+                                                <input type="checkbox" asp-for="@Model.Main_Icons[i].Selected" />
+                                                <img src="@Model.Main_Icons[i].Text" class="mr-2" />
+                                                <input type="hidden" asp-for="@Model.Main_Icons[i].Value" />
+                                                <input type="hidden" asp-for="@Model.Main_Icons[i].Text" />
+                                            </li>
+                                        }
+                                    </ul>
+                                    <span asp-validation-for="Main_Icons" class="text-danger"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 제품 상세 이미지 등록 -->
+        <div class="card shadow mb-4">
+            <!-- Card Header - Accordion -->
+            <a href="#collapseCardExample3" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample3">
+                <h6 class="m-0 font-weight-bold text-primary">제품 상세 이미지 등록</h6>
+            </a>
+            <div class="collapse show" id="collapseCardExample3">
+                <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                    <tbody>
+                        @foreach (var item in Model.Image_Category_Codes)
+                        {
+                            <tr>
+                                <td rowspan="2" class="table-td-label">@item.Text</td>
+                                <td>
+                                    <input type="hidden" value="@item.Value" />
+                                    <a class="btn btn-sm btn-tertiary addProductImage"> + 추가</a>
+                                    <a class="btn btn-sm btn-tertiary removeProductImage"> <i class='fas fa-times table-primary-red'></i> 선택 삭제</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center; height:200px;background-color:#FFFFFF;">
+                                    <ul class="pcImageList @item.Value">
+
+                                        @foreach (var img in Model.ProductImages.Where(m => m.Image_Type_Code == item.Value))
+                                        {
+                                            var idx = Guid.NewGuid().ToString();
+                                            <li class="pcImageItem">
+                                                <input type="checkbox" />
+                                                <input type="hidden" name="ProductImages.index" value="@idx" />
+                                                <img src="@img.ImageAbsoluteUri" class="pcImage mr-2" />
+                                                <input type="hidden" name="ProductImages[@idx].Image_ID" value="@img.Image_ID" />
+                                                <input type="hidden" name="ProductImages[@idx].Image_URL" value="@img.Image_URL" />
+                                                <input type="hidden" name="ProductImages[@idx].Image_Type_Code" value="@img.Image_Type_Code" />
+                                                <input type="hidden" name="ProductImages[@idx].ImageAbsoluteUri" value="@img.ImageAbsoluteUri" />
+                                                <input type="hidden" name="ProductImages[@idx].UpdateDateTime" value="@img.UpdateDateTime" />
+                                            </li>
+                                        }
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <span asp-validation-for="ProductImages" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- 템플릿 등록 -->
+        <div class="card shadow mb-4">
+            <!-- Card Header - Accordion -->
+            <a href="#collapseCardExample3" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample3">
+                <h6 class="m-0 font-weight-bold text-primary">템플릿 등록</h6>
+            </a>
+            <div class="collapse show" id="collapseCardExample3">
+                <table class="table table-bordered" width="100%" cellspacing="0" style="border:0; margin:0;">
+                    <tbody>
+                        <tr>
+                            <td class="table-td-label">템플릿</td>
+                            <td>
+                                <input type="hidden" asp-for="Template_ID" />
+                                <button type="button" id="aTemplete" class="btn btn-sm btn-tertiary">편집</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="table-td-label">리스트<br />이미지</td>
+                            <td>
+                                <img id="imgMainImageUri" src="@Model.Main_ImageAbsoluteUri" style="width:108px;height:108px;">
+                                <input type="hidden" asp-for="Main_ImageAbsoluteUri" />
+                                <input type="hidden" asp-for="Main_Image_URL" />
+                                <input type="hidden" asp-for="Preview_ImageAbsoluteUri" />
+                                <input type="hidden" asp-for="Preview_Image_URL" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td id="tdMainChangeBtn" style="background-color: white;">
+                                <a class="btn btn-sm btn-tertiary addMainImage">이미지 등록/변경</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-sm btn-tertiary"><i class="fas fa-download fa-sm text-black-50"></i> 저장</button>
+            @if (Model.IsDelete)
+            {
+                <a asp-action="Delete" asp-route-id="@Model.Product_ID" class="btn btn-sm btn-tertiary">삭제</a>
+            }
+        </div>
+
+        <div class="mt-5">
+            <h6>도움말</h6>
+            <hr>
+            <ul class="adviceUl">
+                <li>1.&nbsp;&nbsp;포토형 청첩장의 경우, 제품분류 > 포토형을 체크하세요.</li>
+                <li class="adviceLi">- 포토형은 제품분류에 포토형을 체크해야, 프런트에 대표이미지 등록 화면이 표시됩니다.</li>
+                <li class="adviceLi">- 포토형을 체크하지 않으면 일반형으로 처리되어, 프런트에 대표이미지 등록화면이 표시되지 않습니다.</li>
+            </ul>
+            <ul class="adviceUl">
+                <li>2.&nbsp;&nbsp;제품코드 체계는 아래와 같이 자동으로 부여됩니다. (예 MC1201)</li>
+                <li class="adviceLi">- MC 모바일카드</li>
+                <li class="adviceLi">- 1 첫번째 자리 → 출시년도 맨 뒷자리 ( 2021일 경우 1 )</li>
+                <li class="adviceLi">- 2 두번째 자리 → 브랜드 별 번호 ( 바른손 2, 비핸즈 0, 더카드 4, 프리미어페이퍼 6 )</li>
+                <li class="adviceLi">- 01 세번째. 네번째 자리 → 제품 출시 순서 별 부여 ( 제품 순서 별로 01, 02, 03......)</li>
+            </ul>
+            <ul class="adviceUl">
+                <li class="adviceLi">- 프런트에 노출되는 제품코드 수정을 원할 경우, 자동 부여된 제품코드 옆에 있는 입력 필드를 수정하세요</li>
+            </ul>
+        </div>
+        <input type="hidden" asp-for="TemporaryId" />
+        <input type="hidden" asp-for="isNew" />
+
+        <div class="modal" id="divtemplate" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document" style="max-width:100%; margin: 0px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">템플릿 편집</h5>
+                        <button class="close" type="button" id="btntemplateclose">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body temp-model-bg">
+                        <partial name="_TemplatePartial" model="Model" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal fade" id="call-cropImg" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="width:500px;height:500px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">이미지 자르기</h5>
+            </div>
+            <div class="modal-body">
+                <p>잘못된 파일입니다.</p>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" name="cropTypeCode" />
+                <button type="button" class="btn btn-default crop_btn">선택</button>
+                <button class="btn btn-secondary" type="button" id="btncall-cropImgClose">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <form asp-action="UploadImage" id="frmFileUpload" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="TemporaryId" />
+        <input type="hidden" name="TypeCode" />
+        <input type="hidden" name="RootPath" />
+        <input type="hidden" name="LeafPath" />
+        <input type="file" id="file" name="files" multiple />
+    </form>
+    <form asp-action="UploadTemplateImage" id="uploadFrm" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="TemporaryId" />
+        <input type="hidden" name="TypeCode" />
+        <input type="hidden" name="RootPath" value="template" />
+        <input type="hidden" name="imageData" value="" />
+        <input type="file" id="file" name="files" multiple />
+        <input type="file" name="select_temp" class="addition_image_select" style="display:none;">
+    </form>
+</div>
+
+<div class="loader">
+    <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>
+@section Scripts
+{
+    @*<partial name="_ValidationScriptsPartial" />*@
+    <script src="~/js/productreg.js" asp-append-version="true"></script>
+}

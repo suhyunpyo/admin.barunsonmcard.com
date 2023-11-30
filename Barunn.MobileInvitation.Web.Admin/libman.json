@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "bootstrap@4.6.1",
+      "destination": "wwwroot/lib/bootstrap/"
+    },
+    {
+      "library": "bootstrap-datepicker@1.9.0",
+      "destination": "wwwroot/lib/bootstrap-datapicker/",
+      "files": [
+        "css/*",
+        "js/*",
+        "locales/bootstrap-datepicker.ko.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap-colorpicker@3.4.0",
+      "destination": "wwwroot/lib/bootstrap-colorpicker/"
+    },
+    {
+      "library": "bootstrap4-duallistbox@4.0.2",
+      "destination": "wwwroot/lib/bootstrap4-duallistbox/"
+    },
+    {
+      "library": "font-awesome@5.15.1",
+      "destination": "wwwroot/lib/fontawesome/",
+      "files": [
+        "css/*",
+        "webfonts/*"
+      ]
+    },
+    {
+      "library": "jquery-jcrop@2.0.4",
+      "destination": "wwwroot/lib/jcrop/"
+    },
+    {
+      "library": "jquery@3.5.1",
+      "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "jqueryui@1.12.1",
+      "destination": "wwwroot/lib/jquery-ui/"
+    },
+    {
+      "library": "jquery-validate@1.19.3",
+      "destination": "wwwroot/lib/jquery-validation/"
+    },
+    {
+      "library": "jquery-validation-unobtrusive@3.2.12",
+      "destination": "wwwroot/lib/jquery-validation-unobtrusive/"
+    },
+    {
+      "library": "jquery-easing@1.4.1",
+      "destination": "wwwroot/lib/jquery-easing/"
+    },
+    {
+      "library": "jquery-contextmenu@2.9.2",
+      "destination": "wwwroot/lib/jquery-contextmenu/"
+    },
+    {
+      "library": "Chart.js@2.9.4",
+      "destination": "wwwroot/lib/chart/"
+    },
+    {
+      "library": "cropperjs@1.5.12",
+      "destination": "wwwroot/lib/cropperjs/"
+    }
+
+  ]
+}

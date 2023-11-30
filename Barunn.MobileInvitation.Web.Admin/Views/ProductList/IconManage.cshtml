@@ -1,0 +1,78 @@
+﻿@model List<IconViewModel>
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">아이콘 관리</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>
+                                <form asp-action="IconUpload" id="frmupload" method="post" enctype="multipart/form-data">
+                                    <input type="file" id="file" name="file" style="display:none">
+                                    <button type="button" class="btn btn-sm btn-tertiary btnadd"> + 추가</button>
+                                    <button type="button" class="btn btn-sm btn-tertiary btndelete"><i class="fas fa-times table-primary-red"></i> 선택 삭제</button>
+                                </form>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <form asp-action="IconDelete" id="frmdelete" method="post">
+
+                                    <div class="container">
+                                        @for (var i = 0; i < Model.Count; i++)
+                                        {
+                                            <div class="col-md-2 col-4">
+                                                <input type="checkbox" asp-for="@Model[i].Selected" disabled="@(Model[i].Products > 0)" />
+                                                <label class="form-check-label ml-1">(@Model[i].Products)</label>
+                                                <img src="@Model[i].Icon_URL" class="mr-2">
+                                                <input type="hidden" asp-for="@Model[i].Icon_ID" />
+                                                <input type="hidden" asp-for="@Model[i].Icon_URL" />
+                                            </div>
+                                        }
+                                    </div>
+                                </form>
+                            </td>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;체크박스 옆 숫자는 설정된 상품 수 입니다.</li>
+
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;상품수가 0일 경우에만 삭제 가능 합니다.</li>
+
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(".btnadd").on('click', function (e) {
+            $("#file").click();
+        });
+
+        $("#file").on("change", function (e) {
+            $("#frmupload").submit();
+        });
+        $(".btndelete").on('click', function (e) {
+            if ($("input:checkbox:checked").length > 0) {
+                $("#frmdelete").submit();
+            }
+        });
+    </script>
+}

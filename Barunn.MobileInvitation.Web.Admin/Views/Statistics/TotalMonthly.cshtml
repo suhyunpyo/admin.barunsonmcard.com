@@ -1,0 +1,246 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model StatisticsViewModel<TB_Total_Statistic_Month>
+
+@{
+    Layout = "_Layout";
+}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">전체현황 / 월별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form id="frmSearch" method="get" asp-action="TotalMonthly">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">기간</td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="year" id="year" title="년" tabindex="0" style="width:10%; display: inline;"
+                                            asp-for="SelectedYear" asp-items="Model.Years">
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit">검색</button>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm btn-init" type="button">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Area Chart -->
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">월별 현황</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="chart" style="width:100%; height:100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4" style="padding-top: 100px;">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="TotalMonthlyExcel" asp-route-year="@Model.SelectedYear"
+                   class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>일자</th>
+                            <th>무료주문</th>
+                            <th>유료주문</th>
+                            <th>취소주문</th>
+                            <th>결제</th>
+                            <th>취소/환불</th>
+                            <th>순매출</th>
+                            <th>회원가입</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sd in Model.Items)
+                        {
+                            DateTime dt = DateTime.ParseExact(sd.Date, "yyyyMM", null);
+                            string strDt = dt.ToString("yyyy-MM");
+                            <tr>
+                                <td class="chart-lable tdCenter" data-chartlabel="@(dt.ToString("MM"))">@(strDt)</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Free_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Charge_Order_Count))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Cancel_Count))</td>
+                                <td class="chart-pay-value tdRight" style="color:rgba(51,153,255,1);" data-chartval="@(sd.Payment_Price)">@(String.Format("{0:N0}", sd.Payment_Price))</td>
+                                <td class="chart-cancel-value tdRight" style="color:rgba(255,150,153,1);" data-chartval="@(sd.Cancel_Refund_Price)">@(String.Format("{0:N0}", sd.Cancel_Refund_Price))</td>
+                                <td class="chart-profit-value tdRight" style="font-weight:bold;color:rgba(0,153,0,1);" data-chartval="@(sd.Profit_Price)">@(String.Format("{0:N0}", sd.Profit_Price))</td>
+                                <td class="tdRight">@(String.Format("{0:N0}", sd.Memberjoin_Count))</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="tdCenter">합계</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Free_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Charge_Order_Count))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Cancel_Count))</td>
+                            <td class="tdRight" style="color:rgba(51,153,255,1);">@(String.Format("{0:N0}", Model.Total.Payment_Price))</td>
+                            <td class="tdRight" style="color:rgba(255,150,153,1);">@(String.Format("{0:N0}", Model.Total.Cancel_Refund_Price))</td>
+                            <td class="tdRight" style="font-weight:bold;color:rgba(0,153,0,1);">@(String.Format("{0:N0}", Model.Total.Profit_Price))</td>
+                            <td class="tdRight">@(String.Format("{0:N0}", Model.Total.Memberjoin_Count))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;전일 기준 데이터를 반영 및 표시합니다.</li>
+                    <li class="adviceLi">- 결제일 기준 데이터</li>
+                    <li class="adviceLi">- A 주문건을 1/1일 결제하고 1/3일 주문취소할 경우, 결제금액은 1/1일에 반영되고, 취소금액은 1/3일에 반영</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;무료주문은 무료주문 건수를 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3.&nbsp;&nbsp;유료주문은 유료주문 건수를 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>4.&nbsp;&nbsp;순매출(결제-취소/환불)은 모바일초대장 유료주문 금액을 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>5.&nbsp;&nbsp;회원가입은 모바일초대장 사이트에서 가입한 회원만 표시합니다.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $().ready(function () {
+            $('.btn-init').click(function (e) {
+                $('#year').val('');
+                $('#frmSearch').submit();
+            });
+
+            initChart();
+
+        });
+
+        function initChart() {
+            var canvas = document.getElementById('chart');
+            var ctx = canvas.getContext('2d');
+            var options = {
+                responsive: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            fontSize: 14,
+                        }
+                    }]
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+
+                            var label = data.datasets[tooltipItem.datasetIndex].label;
+                            var value = tooltipItem.yLabel;
+
+                            if (!value) {
+                                value = '0';
+                            } else {
+                                value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            }
+
+                            return label + ' : ' + value;
+                        }
+                    },
+                }
+            };
+            var arrLabels = new Array();
+            var arrValues1 = new Array();
+            var arrValues2 = new Array();
+            var arrValues3 = new Array();
+
+            for (var item = $('.chart-lable').length - 1; item >= 0; item--) {
+                arrLabels.push($($('.chart-lable')[item]).data('chartlabel') + '월');
+            }
+
+            for (var item = $('.chart-pay-value').length - 1; item >= 0; item--) {
+                arrValues1.push($($('.chart-pay-value')[item]).data('chartval'));
+            }
+
+            for (var item = $('.chart-cancel-value').length - 1; item >= 0; item--) {
+                arrValues2.push($($('.chart-cancel-value')[item]).data('chartval'));
+            }
+
+            for (var item = $('.chart-profit-value').length - 1; item >= 0; item--) {
+                arrValues3.push($($('.chart-profit-value')[item]).data('chartval'));
+            }
+
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: arrLabels,
+                    datasets: [{
+                        label: '결제(원)',
+                        data: arrValues1,
+                        backgroundColor: 'rgba(255,255,255,0)',
+                        borderColor: 'rgba(51,153,255,1)',
+                        pointBackgroundColor: 'rgba(51,153,255,1)',
+                        lineTension: 0,
+                        borderWidth: 1
+                    },
+                    {
+                        label: '취소(원)',
+                        data: arrValues2,
+                        backgroundColor: 'rgba(255,255,255,0)',
+                        borderColor: 'rgba(255,150,153,1)',
+                        pointBackgroundColor: 'rgba(255,150,153,1)',
+                        lineTension: 0,
+                        borderWidth: 1
+                    },
+                    {
+                        label: '순매출(원)',
+                        data: arrValues3,
+                        backgroundColor: 'rgba(255,255,255,0)',
+                        borderColor: 'rgba(0,153,0,1)',
+                        pointBackgroundColor: 'rgba(0,153,0,1)',
+                        lineTension: 0,
+                        borderWidth: 3
+                    }
+                    ]
+                },
+                options: options
+            });
+        }
+
+    </script>
+}

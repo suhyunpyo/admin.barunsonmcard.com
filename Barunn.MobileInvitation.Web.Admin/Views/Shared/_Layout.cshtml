@@ -1,0 +1,98 @@
+﻿@using  Barunn.MobileInvitation.Web.Admin.Services;
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - 바른컴퍼니 모바일 초대장</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/datepicker3.css" rel="stylesheet" />
+    <link href="~/css/sb-admin-2.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/css/etc.css" asp-append-version="true" rel="stylesheet" />
+
+    <style type="text/css">
+        .adviceUl {
+            margin-left: -40px;
+            font-size: 0.9rem;
+        }
+
+        .adviceLi {
+            margin-left: 25px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body id="page-top">
+    <partial name="_TopMenuPartial" />
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Sidebar -->
+        <partial name="_LeftMenuPartial" />
+        <!-- End of Sidebar -->
+        <!-- Main Content -->
+        <div id="content">
+            @RenderBody()
+        </div>
+        <!-- End of Main Content -->
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white" style="display:none;">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; barunsonmcard 2021</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+    </div>
+    <!-- End of Content Wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">로그아웃 하시겠습니까?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+                    <a class="btn btn-primary" href="@Url.Action("Logout", "Member")">확인</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/lib/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/lib/chart/Chart.min.js"></script>
+
+    <script src="~/js/plugins/bootstrap-datepicker.js"></script>
+    <script src="~/js/plugins/bootstrap-datepicker.ko.min.js"></script>
+    <script src="~/js/admin_common_helper.js" asp-append-version="true"></script>
+    <script src="~/js/checkboxs_helper.js" asp-append-version="true"></script>
+    <script src="~/js/sb-admin-2.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

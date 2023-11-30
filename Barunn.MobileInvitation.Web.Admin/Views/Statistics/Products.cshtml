@@ -1,0 +1,237 @@
+﻿@model StatisticsProductsViewModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+</style>
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">제품통계</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="post" asp-action="Products" id="frmSearch" onsubmit="return checkForm(this);">
+                    <input type="hidden" asp-for="SelectedOrderby" />
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100px;">검색어</td>
+                                <td>
+                                    <input asp-for="Keyword" type="text" style="width:59.5%" class="form-control form-control-sm" title="검색" placeholder="카드코드">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>브랜드</td>
+                                <td class="input_padding">
+                                    <input type="checkbox" id="chkBrandAll" value="ALL" />
+                                    <label for="chkBrandAll" class="mr-2">전체</label>
+                                    @for (var i = 0; i < Model.Barans.Count; i++)
+                                    {
+                                        <div>
+                                            <input type="checkbox" asp-for="@Model.Barans[i].Selected" class="check-brand" />
+                                            <label asp-for="@Model.Barans[i].Selected" class="mr-2">@Model.Barans[i].Text</label>
+                                            <input type="hidden" asp-for="@Model.Barans[i].Value" />
+                                            <input type="hidden" asp-for="@Model.Barans[i].Text" />
+                                        </div>
+                                    }
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>일자</td>
+                                <td>
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-daterange">
+                                        <input type="text" asp-for="StartDate" id="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" title="검색" placeholder="검색시작일" class="form-control border-0 small bg-light">
+                                    </div>
+                                    <div class="input-daterange">
+                                        <input type="text" asp-for="EndDate" id="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" title="검색" placeholder="검색종료일" class="form-control border-0 small bg-light">
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Products" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <select name="orderby" id="orderby" asp-for="SelectedOrderby" asp-items="Model.Orders" class="form-control form-control-sm" style="width:10%; display:inline;"></select>
+                <a asp-action="ProductsExcel" asp-all-route-data="Model.ToRouteValues" class="d-none d-sm-inline-block btn btn-sm btn-secondary2 shadow-sm">엑셀 다운로드</a>
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>브랜드</th>
+                            <th>제품코드</th>
+                            <th>무료 건수</th>
+                            <th>유료 건수</th>
+                            <th>건수 합계</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items.Count > 0)
+                        {
+                            int count = Model.Items.Count;
+                            foreach (var st in Model.Items)
+                            {
+                                <tr>
+                                    <td class="tdCenter">@(count--)</td>
+                                    <td class="tdCenter">@(st.ProductBrandName)</td>
+                                    <td class="tdCenter">@(st.ProductCode)</td>
+                                    <td class="tdRight">@(String.Format("{0:N0}", st.FreeCount))</td>
+                                    <td class="tdRight">@(String.Format("{0:N0}", st.PayCount))</td>
+                                    <td class="tdRight">@(String.Format("{0:N0}", st.TotalCount))</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">검색결과가 없습니다.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;실시간 기준 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2.&nbsp;&nbsp;조회기간에 제품별로 누적 판매량을 조회 할 수 있습니다.</li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- 전체현황 테이블 -->
+
+    </div>
+</div>
+
+@section Scripts
+{
+<script>
+    $(document).ready(function (e) {
+        $("#chkBrandAll").prop("checked", $("input:checkbox[name^=Barans]").length == $("input:checkbox[name^=Barans]:checked").length);
+
+        var $from = $('#startDate');
+        var $to = $('#endDate');
+
+        $from.datepicker({
+            showOn: "both",
+            todayBtn: "linked",
+            autoclose: true,
+            language: "ko",
+            format: "yyyy-mm-dd"
+        }).on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+        });
+
+        $to.datepicker({
+            showOn: "both",
+            todayBtn: "linked",
+            autoclose: true,
+            language: "ko",
+            format: "yyyy-mm-dd"
+        }).on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+        });
+
+    });
+
+    $('#orderby').change(function (e) {
+        $('input[name="SelectedOrderby"]').val($(this).val());
+        $('#frmSearch').submit();
+    });
+
+    $('.date-term').click(function (e) {
+        $(".date-term").removeClass('active');
+        $(this).addClass('active');
+
+        var t = $(this).data('term');
+        var st = $('#startDate');
+        var ed = $('#endDate');
+
+        var now = new Date();
+        var tmpDt = new Date();
+        ed.val(toStringByFormatting(now, '-'));
+        if (t == 1) {
+            tmpDt.setDate(tmpDt.getDate() - 7);
+            st.val(toStringByFormatting(tmpDt, '-'));
+        }
+        else if (t == 2) {
+            tmpDt.setMonth(tmpDt.getMonth() - 1);
+            tmpDt.setDate(tmpDt.getDate() + 1);
+
+            st.val(toStringByFormatting(tmpDt, '-'));
+        }
+        else if (t == 3) {
+            tmpDt.setMonth(tmpDt.getMonth() - 3);
+            tmpDt.setDate(tmpDt.getDate() + 1);
+
+            st.val(toStringByFormatting(tmpDt, '-'));
+        }
+
+        $('#termType').val(t)
+    });
+
+    // 전체를 클릭하면 나머지 체크박스 전부 체크 처리(브랜드 선택 리스트)
+    $("#chkBrandAll").click(function () {
+        $("[name^=Barans]").prop("checked", this.checked);
+    });
+    //각 체크박스를 모두 클릭하면 전체체크박스 자동 체크 / 해제
+    $("[name^=Barans]").click(function () {
+        $("#chkBrandAll").prop("checked", $("input:checkbox[name^=Barans]").length == $("input:checkbox[name^=Barans]:checked").length);
+    });
+
+    function checkForm(frm) {
+        var brand = $('.check-brand');
+        var checkcount = 0;
+        for (var i = 0; i < brand.length; i++) {
+            if (brand[i].checked) checkcount++;
+        }
+
+        if (checkcount == 0) {
+            alert('브랜드는 하나 이상 선택이 필요합니다.');
+            return false;
+        }
+
+        return true;
+    }
+
+</script>
+}

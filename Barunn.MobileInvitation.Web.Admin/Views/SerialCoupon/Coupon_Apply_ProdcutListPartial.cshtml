@@ -1,0 +1,49 @@
+﻿@model List<SerialCouponApplyProdcutListDataModel>
+@{
+    Layout = null;
+}
+<table class="table table-bordered" width="100%" cellspacing="0" style="text-align: center">
+    <thead>
+        <tr>
+            <th>선택</th>
+            <th>No</th>
+            <th>제품분류</th>
+            <th>상품명</th>
+            <th>제품코드</th>
+            <th>전시상태</th>
+            <th>가격</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int currentno = Model.Count;
+
+        }
+        @if (Model.Count == 0)
+        {
+            <tr>
+                <td colspan="7" style="text-align: center">상품 리스트가 없습니다</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a href="#none" class="d-sm-inline-block btn btn-sm btn-dark shadow-sm selectcode">선택</a>
+                        <input type="hidden" value="@item.Product_Code" />
+                    </td>
+                    <td>@{@currentno}@{currentno--;}</td>
+                    <td>@item.Product_Category_Name</td>
+                    <td>@item.Product_Name</td>
+                    <td>@item.Product_Code</td>
+                    <td>전시</td>
+                    <td>@item.Price.ToString("#,###")</td>
+
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+       

@@ -1,0 +1,112 @@
+﻿@model FlaBannerManageEditModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .inputkeyword div.input-group {
+        display: flex;
+    }
+        .inputkeyword div.input-group div.input-group-append .btn {
+            font-size: 0.9em;
+        }
+
+    .divmessage {
+        color: red;
+    }
+</style>
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">화환배너 등록/수정</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="BannerManageSave" method="post" id="frmEdit">
+                <input type="hidden" asp-for="Id" />
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr class="trSize">
+                                <td class="tdSize">키워드<br/> 그룹명 </td>
+                                <td>
+                                    <input type="text" asp-for="GroupName" class="form-control" placeholder="그룹명을 입력하세요" />
+                                </td>
+                                <td class="tdSize">배너 상태</td>
+                                <td>
+                                    @foreach (var item in Model.Alloweds)
+                                    {
+                                        <input type="radio" asp-for="Allowed" value="@item.Value" />
+                                        <label>@item.Text</label>
+                                    }
+                                </td>
+                            </tr>
+                            <tr class="trSize">
+                                <td class="tdSize">예식장 연관 키워드</td>
+                                <td colspan="3" class="inputkeyword">
+                                    @foreach(var keyword in Model.Keywords)
+                                    {
+                                        <div class="col-3 keyitem">
+                                            <div class="input-group mb-3">
+                                                <input type="text" name="Keywords" value="@keyword" class="form-control" placeholder="키워드를 입력하세요">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-secondary removekeyword" type="button">X</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <button type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm addkeyword">추가</button>
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                    <div class="text-center divmessage">
+                        @Model.Message
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">저 장</button>&nbsp;&nbsp;&nbsp;
+                        <a asp-action="BannerManageList" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="mt-5">
+            <h6>도움말</h6>
+            <hr>
+            <ul class="adviceUl">
+                <li>1. 등록하신 '예식장 연관 키워드'가 모바일청첩장 제작 시 고객이 입력하는 '예식장명'과 일치할 경우 화환 배너가 노출되지 않습니다</li>
+            </ul>
+            <ul class="adviceUl">
+                <li>2. 등록 정보 사이트 반영 시점: 고객이 신규로 카드를 제작하거나 이미 제작완료 된 카드의 Step 1 정보입력을 수정하는 경우</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $("button.addkeyword").on('click', function () {
+                $(this).before('<div class="col-3 keyitem"> \
+                                        <div class="input-group mb-3"> \
+                                            <input type="text" name="Keywords" value="" class="form-control" placeholder="키워드를 입력하세요"> \
+                                            <div class="input-group-append"> \
+                                                <button class="btn btn-outline-secondary removekeyword" type="button">X</button> \
+                                            </div> \
+                                        </div> \
+                                    </div>');
+            });
+            $('.inputkeyword').on('click', 'button.removekeyword', function () {
+                $(this).parents('div.keyitem').remove();
+            });
+
+            $("#frmEdit").on('submit', function () {
+                var c = confirm("지금 저장하시겠습니까?");
+                return c;
+            });
+        });
+        
+    </script>
+}

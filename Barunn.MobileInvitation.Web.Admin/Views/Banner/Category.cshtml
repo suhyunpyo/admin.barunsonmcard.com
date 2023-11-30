@@ -1,0 +1,109 @@
+﻿@model List<Barunn.MobileInvitation.Dac.Models.Barunson.TB_Banner_Category>
+@{
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">배너분류</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="AddCategory" asp-controller="Banner" method="post">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr class="trSize">
+                                <td class="tdSize" style="width:12%">신규 분류 생성</td>
+                                <td>
+                                    <input type="text" name="CateName" class="form-control form-control-sm" placeholder="배너 분류명을 입력하세요"
+                                           style="width:30%; display:inline;" />&nbsp;
+                                    <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">생성</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th width="40%">배너분류(오름차순) </th>
+                            <th>등록일</th>
+                            <th>수정일</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count;
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @(currentno)
+                                </td>
+                                <td class="tdLeft">
+                                    <form asp-action="UpdateCategory" asp-controller="Banner" method="post" class="form-inline">
+                                        <input type="hidden" name="id" value="@item.Banner_Category_ID" />
+                                            <input type="text" name="CateName" class="form-control w-75" value="@item.Banner_Category_Name" />
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary ml-2">저장</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    @item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td>
+                                    @item.Update_DateTime?.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td>
+                                    <a asp-action="DeleteCategory" asp-controller="Banner" asp-route-id="@item.Banner_Category_ID"
+                                       class="text-decoration-underline btndelete">삭제</a>
+                                </td>
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1.&nbsp;&nbsp;생성한 배너분류 삭제시, 해당 분류에 등록된 모든 배너도 삭제됩니다</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(".btndelete").on("click", function (e) {
+            var result = confirm('삭제시, 해당 분류에 등록된 모든 배너도 삭제됩니다. 정말 삭제하시겠습니까?');
+            if (!result) {
+                e.preventDefault();
+            }
+        });
+
+    </script>
+}

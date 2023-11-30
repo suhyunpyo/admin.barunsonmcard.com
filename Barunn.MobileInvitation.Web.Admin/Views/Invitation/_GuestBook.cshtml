@@ -1,0 +1,21 @@
+﻿@model List<Barunn.MobileInvitation.Dac.Models.Barunson.TB_GuestBook>
+@{ 
+    Layout = null;
+}
+@foreach (var gb in Model)
+{
+    <li class="guestbook_item" data-guestbook-id="@(gb.GuestBook_ID)">
+        <div class="message_top">
+            <span class="name">@(gb.Name)</span>
+            <span class="date">@(gb.Regist_DateTime)</span>
+        </div>
+        <div class="message_text">
+            <p>@(gb.Message)</p>
+            <a href="javascript:;" class="message_del" data-guestbook-id="@(gb.GuestBook_ID)">방명록 삭제하기</a>
+        </div>
+        <div class="password_check">
+            <input type="password" name="password" maxlength="20" placeholder="비밀번호를 입력하세요.">
+            <a href="javascript:;" data-guestbook-id="@(gb.GuestBook_ID)" class="btn btn_delete_guestbook check_btn">확인</a>
+        </div>
+    </li>
+}

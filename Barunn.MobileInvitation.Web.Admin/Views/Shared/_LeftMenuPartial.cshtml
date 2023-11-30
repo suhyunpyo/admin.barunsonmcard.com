@@ -1,0 +1,110 @@
+﻿@using Barunn.MobileInvitation.Web.Admin.Services;
+@using Barunn.MobileInvitation.Common.Models;
+@using System.Security.Claims;
+@{
+    var userRole = AdminRole.None;
+    if (User.Identity.IsAuthenticated)
+    {
+        var claimsIdentity = User.Identity as ClaimsIdentity;
+        var roleName = claimsIdentity?.FindFirst(ClaimTypes.Role)?.Value;
+        if (roleName != null)
+        {
+            Enum.TryParse(roleName, true, out userRole);
+        }
+    }
+
+    var menus = NavMenuService.Menus;
+    List<NavMenuModel> selectedList = new List<NavMenuModel>();
+    //상단 메뉴 목록
+    var topNavMenus = menus.MenuItems.Where(m => m.ParentId == 0).OrderBy(m => m.Id).ToList();
+
+    var selectedMenu = (NavMenuModel)ViewData["SelectedMenu"];
+    if (selectedMenu != null)
+    {
+        selectedList = menus.GetParentMenus(selectedMenu).ToList();
+
+        topNavMenus.Single(m => m.Id == selectedList.First().Id).IsSelected = true;
+    }
+
+    var topmenu = topNavMenus.FirstOrDefault(m => m.IsSelected);
+}
+
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <!-- Divider -->
+    @*<hr class="sidebar-divider" />*@
+    @if (topmenu != null)
+    {
+        var leftMenus = menus.MenuItems.Where(m => m.ParentId == topmenu.Id).OrderBy(m => m.Id);
+
+        foreach (var leftmenu in leftMenus)
+        {
+            leftmenu.IsSelected = selectedList.Exists(m => m.Id == leftmenu.Id);
+            if (!leftmenu.IsDisplay || !leftmenu.HasRole(userRole))
+                continue;
+
+            var subMenuList = menus.MenuItems.Where(m => m.ParentId == leftmenu.Id && m.IsDisplay).OrderBy(m => m.Id);
+            if (subMenuList.Count() > 0)
+            {
+                <li class="nav-item" name="StatisticsNevi">
+                    <a href="#" class="nav-link collapsed" data-toggle="collapse" aria-expanded="true">
+                        @if (leftmenu.IsSelected)
+                        {
+                            <span style="color: rgb(132, 160, 255)">@leftmenu.Title</span>
+                        }
+                        else
+                        {
+                            <span>@leftmenu.Title</span>
+                        }
+
+                    </a>
+                    <div class="collapse">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            @foreach (var subMenu in subMenuList)
+                            {
+                                if (!subMenu.IsDisplay || !subMenu.HasRole(userRole))
+                                    continue;
+
+                                var css = "";
+                                if (selectedList.Exists(m => m.Id == subMenu.Id))
+                                    css = "background-color: rgb(234, 236, 244);";
+
+                                if (subMenu.AlertText != null)
+                                {
+                                    <a class="collapse-item" style="@css" onclick="alert('@subMenu.AlertText')">@subMenu.Title</a>
+                                }
+                                else
+                                {
+                                    <a class="collapse-item" style="@css" asp-controller="@subMenu.Controller" asp-action="@subMenu.Action" asp-all-route-data="@subMenu.RouteData">@subMenu.Title</a>
+                                }
+
+                            }
+                        </div>
+                    </div>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item">
+                    @if (leftmenu.AlertText != null)
+                    {
+                        <a  href="#" class="nav-link collapsed" onclick="alert('@leftmenu.AlertText')"><span>@leftmenu.Title</span></a>
+                    }
+                    else 
+                    { 
+                        <a class="nav-link collapsed" asp-controller="@leftmenu.Controller" asp-action="@leftmenu.Action" asp-all-route-data="@leftmenu.RouteData">
+                            @if (leftmenu.IsSelected)
+                            {
+                                <span style="color: rgb(132, 160, 255)">@leftmenu.Title</span>
+                            }
+                            else
+                            {
+                                <span>@leftmenu.Title</span>
+                            }
+                        </a>
+                    }
+                    
+                </li>
+            }
+        }
+    }
+</ul>

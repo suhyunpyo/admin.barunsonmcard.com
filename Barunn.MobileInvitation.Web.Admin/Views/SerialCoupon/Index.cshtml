@@ -1,0 +1,180 @@
+﻿@model SerialCouponSearchViewModel
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+</style>
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">쿠폰목록</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" asp-controller="SerialCoupon" method="get">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width: 15%;">검 색</td>
+                                <td>
+                                    <input type="text" asp-for="Keyword" class="form-control form-control-sm" placeholder="쿠폰명을 입력하세요">
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="Index" asp-controller="SerialCoupon" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+            </h6>
+        </div>
+
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>쿠폰명</th>
+                            <th>쿠폰타입</th>
+                            <th>발행건수</th>
+                            <th>사용건수</th>
+                            <th>미사용건수</th>
+                            <th>회수건수</th>
+                            <th>쿠폰생성</th>
+                            <th>쿠폰발급</th>
+                            <th>등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="11" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            //DMC01 금액
+                            //DMC02 %
+                            //DMC03   전액할인
+                            var colDiscount = item.Discount_Method_Name;
+                            if (item.Discount_Method_Code == "DMC01")
+                                colDiscount = $"{item.Discount_Price?.ToString("#,##0")}(원)";
+                            else if (item.Discount_Method_Code == "DMC02")
+                                colDiscount = $"{item.Discount_Rate}(%)";
+
+                            <tr>
+                                <td>@currentno</td>
+                                <td class="tdLeft">
+                                    <a asp-action="Edit" asp-controller="SerialCoupon" asp-route-id="@item.Coupon_ID"
+                                       asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-underline">@item.Coupon_Name</a>
+                                </td>
+                                <td>@item.Coupon_Type_Name</td>
+                                <td style="text-decoration: underline;">
+                                    <a asp-action="PublishList" asp-controller="SerialCoupon" asp-route-Coupon_ID="@item.Coupon_ID" asp-route-Coupon_Name="@item.Coupon_Name"
+                                       target="_blank">@item.Publish_count.ToString("#,##0")</a>
+                                </td>
+                                <td>@item.Use_count.ToString("#,##0")</td>
+                                <td>@item.UnUse_count.ToString("#,##0")</td>
+                                <td>@item.Retrive_count.ToString("#,##0")</td>
+                                <td style="text-decoration: underline">
+                                    @if (string.Equals(item.Coupon_Type_Code.ToString(), "CPTC01"))
+                                    {
+                                        @if (int.Parse(item.Publish_count.ToString().Replace(",", "")) < 5000)
+                                        {
+                                            <a class="couponCreate" asp-action="Create" asp-controller="SerialCoupon" asp-route-id="@item.Coupon_ID" style="text-decoration:underline;">
+                                                쿠폰생성
+                                            </a>
+                                        }
+                                    }
+                                </td>
+                                <td style="text-decoration: underline">
+                                    <a asp-action="PublishAdd" asp-controller="SerialCoupon" asp-route-Coupon_ID="@item.Coupon_ID" asp-route-Coupon_Name="@item.Coupon_Name"
+                                       target="_blank">쿠폰발급</a>
+                                </td>
+                                <td>@item.Regist_DateTime?.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+    <div class="mt-5">
+        <h6>도움말</h6>
+        <hr>
+        <ul class="adviceUl">
+            <li>
+                1.&nbsp;&nbsp;쿠폰회수 시 고객 마이페이지에 쿠폰이 노출되지 않으며, 사용이 불가능합니다.
+            </li>
+        </ul>
+        <ul class="adviceUl">
+            <li>
+                2.&nbsp;&nbsp;발행된 쿠폰이 있을 경우 수정은 불가능하며, 필요시 다시 등록하여 사용하세요.
+            </li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+      
+        //쿠폰생성
+        $(document).on("click", 'a.couponCreate', function (e) {
+            e.preventDefault();
+            var result = confirm('200개의 쿠폰을 생성 하시겠습니까?\n(일 최대 5000개 생성 가능)');
+            if (result) {
+                //회수처리
+                $.ajax({
+                    url: $(this).attr('href'),
+                    method: 'GET'
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data['status'] == true) {
+                        //페이지 다시 읽기
+                        location.reload();
+                    } else {
+                        var errors = data['message'];
+                        alert(errors);
+                    }
+
+                });
+            }
+        });
+    </script>
+}

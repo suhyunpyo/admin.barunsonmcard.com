@@ -1,0 +1,419 @@
+﻿@using Barunn.MobileInvitation.Dac.Models.Barunson
+@model KakaoRemitOrderSearchViewModel<KakaoRemitOrderDataModel>
+@{
+    Layout = "_Layout";
+}
+<style type="text/css">
+    .adviceUl {
+        margin-left: -40px;
+        font-size: 0.9rem;
+    }
+
+    .adviceLi {
+        margin-left: 25px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar {
+        width: 253px !important;
+    }
+
+    #content {
+        width: 100% !important;
+    }
+</style>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">주문관리 - 주문별</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <form method="get" asp-action="OrderList" id="frmSearch">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="tdSize">검색</td>
+                                <td><input type="text" asp-for="Keyword" class="form-control bg-light border-0 small" placeholder="주문번호, 아이디, 이름으로 검색하세요" style="width:44%; display:inline;"></td>
+                            </tr>
+                            <tr>
+                                <td>기 간</td>
+                                <td>
+                                    <select asp-for="Period" asp-items="Model.Periods" style="width: 10%;display: inherit" class="form-control form-control-sm">
+                                    </select>
+
+                                    <div style="display:inline;">
+                                        <input type="hidden" asp-for="TermType" id="termType" />
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 0 ? "active" : "")" data-term="0">오늘</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 1 ? "active" : "")" data-term="1">7일</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 2 ? "active" : "")" data-term="2">1개월</a>
+                                        <a href="#none" name="date-term" class="d-none d-sm-inline-block btn btn-sm btn-tertiary shadow-sm date-term @(Model.TermType == 3 ? "active" : "")" data-term="3">3개월</a>
+                                    </div>
+                                    <div class="input-group input-daterange" style="display:inline;">
+                                        <input type="text" asp-for="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" id="startDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i> -
+                                        <input type="text" asp-for="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" id="endDate" class="form-control bg-light border-0 small"
+                                               style="width: 15%; display: inline; margin-bottom: 3px" readonly="readonly" />
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>정산</td>
+                                <td>
+                                    @foreach(var item in Model.CalculateTypes)
+                                    {
+                                        <input type="radio" asp-for="CalculateType" value="@item.Value" /><label>@item.Text</label>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">검색</button>
+                        <a asp-action="OrderList" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">초기화</a>
+                    </div>
+                    <input type="hidden" asp-for="PageSize" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-right">
+                <a asp-action="CheckBalance" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm btncheckBal">잔액확인</a>
+                <a asp-action="OrderListExcel" asp-all-route-data="@Model.RouteData" class="d-none d-sm-inline-block btn btn-sm btn-secondary2  shadow-sm">엑셀 다운로드</a>
+                <select name="Paging" asp-for="PageSize" asp-items="Model.PageSizes" style="width:10%;display: inline;" class="form-control form-control-sm">
+                </select>
+            </h6>
+            <h6 class="m-0" style="font-size:0.9rem; padding-top:15px;">
+                <strong style="padding:0 0 0 10px;color:#333;">송금건수</strong> : @(Model.RemitCount.ToString("#,##0"))건
+                <strong style="padding:0 0 0 10px;color:#333;">송금액</strong> : @(Model.TotalPrice.ToString("#,##0"))원
+            </h6>
+        </div>
+        <!-- 전체현황 테이블 -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered all_gusghkd_table" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="tdCenter">
+                            <th>No</th>
+                            <th>주문번호</th>
+                            <th>이름</th>
+                            <th>아이디</th>
+                            <th>계좌 수</th>
+                            <th>송금건수</th>
+                            <th>송금액</th>
+                            <th>수수료</th>
+                            <th>정산완료</th>
+                            <th>미정산</th>
+                            <th>주문일</th>
+                            <th>계좌 설정일</th>
+                            <th>예식일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int currentno = Model.Count - Model.PageFrom;
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="13" style="text-align: center">리스트가 없습니다</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.DataModel)
+                        {
+                            var colBarunsonmCardUrl = new Uri(Model.BarunsonmCardUrl, item.Invitation_Url);
+                            <tr>
+                                <td class="tdCenter">
+                                    @currentno
+                                </td>
+                                <td class="tdCenter" style="text-decoration: underline;">
+                                    <a href="@colBarunsonmCardUrl" target="_blank"> @item.OrderCode</a>
+                                </td>
+                                <td class="tdLeft" style="text-decoration: underline;">
+                                    <a asp-action="Detail" asp-controller="Member" asp-route-memberType="U" asp-route-id="@item.UserId"
+                                        asp-route-returnUrl="@Model.ReturnUrl">@item.UserName</a>
+                                </td>
+                                <td class="tdLeft">@item.UserId</td>
+                                <td class="tdRight" style="text-decoration: underline;">
+                                    <a asp-action="AccountListPartial" asp-controller="KakaoRemit" asp-route-id="@item.InvitationID" class="popdetail">@item.AccountCount</a>
+                                </td>
+                                <td class="tdRight">@item.RemitCount.ToString("#,###")</td>
+                                <td class="tdRight" style="text-decoration: underline;">
+                                    <a asp-action="RemitDtailPartial" asp-controller="KakaoRemit" asp-route-id="@item.InvitationID" class="popdetail">@item.TotalPrice.ToString("#,###")</a>
+                                </td>
+                                <td class="tdRight">@item.RemitTax.ToString("#,###")</td>
+                                <td class="tdRight">@item.RemitPrice.ToString("#,###")</td>
+                                <td class="tdRight">@item.RemainPrice.ToString("#,###")</td>
+                                <td class="tdCenter"> @item.RegistDate?.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td class="tdCenter"> @item.AccountDate?.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td class="tdCenter"> @item.WeddingDate?.ToString("yyyy-MM-dd HH:mm")</td>
+
+                            </tr>
+                            currentno--;
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model.Count > 0)
+                {
+
+                    <!-- 페이징 추가 -->
+                    await Html.RenderPartialAsync("_PaginationPartial", Model);
+                }
+            </div>
+
+            <div class="mt-5">
+                <h6>도움말</h6>
+                <hr>
+                <ul class="adviceUl">
+                    <li>1. 실시간 데이터를 반영 및 표시합니다.</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>2. 계좌 수는 1명이 축의금 계좌를 설정한 개수입니다. (예. A가 축의금 계좌를 3개 셋팅 시 3으로 카운트)</li>
+                </ul>
+                <ul class="adviceUl">
+                    <li>3. 수수료는 건당 기준이며, 정책에 따라 건당 수수료가 변경 될 수 있습니다. (어드민 > 설정에서 확인 가능)</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 전체현황 테이블 -->
+    </div>
+</div>
+<div class="modal fade" id="popModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 90%;">
+        <div class="modal-content" id="popModalContent">
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+
+            var $from = $('#startDate');
+            var $to = $('#endDate');
+
+            $from.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+            });
+
+            $to.datepicker({
+                showOn: "both",
+                todayBtn: "linked",
+                autoclose: true,
+                language: "ko",
+                format: "yyyy-mm-dd"
+            }).on('changeDate', function (e) {
+                var d = new Date(e.date.valueOf());
+                $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+            });
+        });
+        $(".date-term").click(function (e) {
+            $(".date-term").removeClass('active');
+            $(this).addClass('active');
+
+            var t = $(this).data('term');
+            var st = $('#startDate');
+            var ed = $('#endDate');
+            var now = new Date();
+            var tmpDt = new Date();
+            ed.val(toStringByFormatting(now, '-'));
+            if (t == 0) {
+                st.val(toStringByFormatting(now, '-'));
+            }
+            else if (t == 1) {
+                tmpDt.setDate(tmpDt.getDate() - 7);
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 2) {
+                tmpDt.setMonth(tmpDt.getMonth() - 1);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+            else if (t == 3) {
+                tmpDt.setMonth(tmpDt.getMonth() - 3);
+                tmpDt.setDate(tmpDt.getDate() + 1);
+
+                st.val(toStringByFormatting(tmpDt, '-'));
+            }
+
+            $('#termType').val(t)
+        });
+
+        $("[name=Paging]").change(function () {
+
+            $("#PageSize").val($("[name=Paging]").val());
+            $("#frmSearch").submit();
+            return false;
+
+        });
+
+        //계좌정보, 송금내역 팝업
+        $("a.popdetail").on("click", function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                $("#popModalContent").html(data);
+                $("#popModal").modal("show");
+                sortBtn();
+            });
+        });
+
+        //송금확인
+        $(document).on("click", "#popModalContent a.btn-check-complete", function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                alert(data.message);
+                if (data.status) {
+                    location.reload();
+                }
+            });
+        });
+
+        //정산
+        $(document).on("click", "#popModalContent a.btn-check-calculate", function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                alert(data.message);
+                if (data.status) {
+                    location.reload();
+                }
+            });
+        });
+
+        //계좌 정보 수정
+        $(document).on("click", "#popModalContent .btn-edit", function (e) {
+            e.preventDefault();
+            $('#popModalContent #edit_view').show();
+            $('#popModalContent #frmAccountSave input[name=AccountId]').val($(this).data('accountid'));
+            $('#popModalContent #frmAccountSave select[name=AccountTypeCode]').val($(this).data('accounttypecode'));
+            $('#popModalContent #frmAccountSave select[name=BankCode]').val($(this).data('bankcode'));
+            $('#popModalContent #frmAccountSave input[name=DepositorName]').val($(this).data('depositorname'));
+            $('#popModalContent #frmAccountSave input[name=AccountNumber]').val($(this).data('accountnumber'));
+        });
+
+        //계좌 정보 수정 저장
+        $(document).on("submit", "#popModalContent #frmAccountSave", function (e) {
+            e.preventDefault();
+            var form = $("#frmAccountSave");
+            var formData = new FormData(form[0]);
+
+            $.ajax({
+                url: form.attr('action'),
+                data: formData,
+                type: form.attr('method'),
+                processData: false,
+                contentType: false,
+                dataType: 'json'
+            }).done(function (result) {
+                alert(result.message);
+                if (result.status) {
+                    $.ajax({
+                        url: result.url,
+                        method: 'GET'
+                    }).done(function (data, textStatus, jqXHR) {
+                        $("#popModalContent").html(data);
+                        $("#popModal").modal("show");
+                        sortBtn();
+                    });
+                }
+            });
+        });
+
+        $(document).on("click", '#popModalContent .btn-up', function (e) {
+            var tr = $(this).parents('tr');
+            var targetTr = tr.prev();
+            tr.insertBefore(targetTr);
+            sortBtn();
+        });
+        $(document).on("click", '#popModalContent .btn-down', function (e) {
+            var tr = $(this).parents('tr');
+            var targetTr = tr.next();
+            tr.insertAfter(targetTr);
+            sortBtn();
+        });
+
+        function sortBtn() {
+            $('#popModalContent .sort_order').each(function (e) {
+                var html = new Array();
+
+                if (e != 0) {
+                    html.push('<button type="button" class="btn btn-sm btn-dark btn-up">↑</button>');
+                }
+                if (e != $('.sort_order').length - 1) {
+                    html.push('<button type="button" class="btn btn-sm btn-dark btn-down">↓</button>');
+                }
+                $(this).html(html.join('\n'));
+            });
+        }
+
+        //계좌 순서 저장
+        $(document).on("click", '#popModalContent .btn-sort-save', function (e) {
+            e.preventDefault();
+            var url = $(e.currentTarget).data('href');
+
+            var accounts = $('#popModalContent .account-list');
+            var sortData = [];
+            for (var a = 0; a < accounts.length; a++) {
+                sortData.push($(accounts[a]).data('accountid'));
+            }
+
+            $.ajax({
+                url: url,
+                data: JSON.stringify(sortData),
+                contentType: "application/json",
+                method: 'post',
+                dataType: 'json'
+            }).done(function (result) {
+                alert(result.message);
+                if (result.status) {
+                    $.ajax({
+                        url: result.url,
+                        method: 'GET'
+                    }).done(function (data, textStatus, jqXHR) {
+                        $("#popModalContent").html(data);
+                        $("#popModal").modal("show");
+                        sortBtn();
+                    });
+                }
+            });
+        });
+
+        $(document).on("click", "a.btncheckBal", function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                alert(data.message);
+            });
+        });
+    </script>
+}
